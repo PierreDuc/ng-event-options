@@ -6,7 +6,7 @@
   "name": "ng-event-options",
   "description": "Enable event options (capture, passive, ...) inside angular templates",
   "main": "index.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "typings": "index.d.ts",
   "engines": {

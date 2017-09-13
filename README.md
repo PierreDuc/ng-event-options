@@ -18,7 +18,27 @@ following characters (order is not important). All options default to `false`:
 * n (add the event listener outside the `NgZone`)
 * s (stop the event from bubbling any further and preventing default)
 
-Basic example: 
+### Basic example: 
+
+Add the `NgEventOptionsModule` to your `AppModule`:
+
+    @NgModule({
+        declarations: [
+            AppComponent
+        ],
+        imports: [
+            BrowserModule,
+            NgEventOptionsModule
+        ],
+        providers: [],
+        bootstrap: [
+            AppComponent
+        ]
+    })
+    export class AppModule {
+    }
+
+And you'll be able to do something like this:
 
     <button (click*)="onClick($event)" click.pcon>Click</button>
     
