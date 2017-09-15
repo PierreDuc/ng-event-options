@@ -1,28 +1,24 @@
-import {Inject, Injectable, NgZone} from "@angular/core";
-import {NativeEventOption} from "../enum/native-event-option.enum";
-import {EventListenerOption} from "../enum/event-listener-option";
-import {EventOptionsObject} from "../type/event-options-object";
 import {DOCUMENT} from "@angular/common";
+import {Inject, Injectable, NgZone} from "@angular/core";
+import {EventListenerOption} from "../enum/event-listener-option";
+import {NativeEventOption} from "../enum/native-event-option.enum";
+import {EventOptionsObject} from "../type/event-options-object";
 
 @Injectable()
 export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
-    private nativeEventObjectSupported: boolean|undefined;
+    private nativeEventObjectSupported: boolean | undefined;
 
-    private readonly nativeOptionsSupported: {[key: string]: boolean}|any;
+    private readonly nativeOptionsObjects: { [key: string]: AddEventListenerOptions } | any;
 
-    private readonly nativeOptionsObjects: {[key: string]: AddEventListenerOptions}|any;
+    private readonly nativeOptionsSupported: { [key: string]: boolean } | any;
 
-    constructor(
-        private readonly ngZone: NgZone,
-        @Inject(DOCUMENT)private readonly doc: Document
-    ) {
+    constructor(private readonly ngZone: NgZone,
+                @Inject(DOCUMENT) private readonly doc: Document) {
         this.nativeOptionsSupported = new Object(null);
         this.nativeOptionsObjects = new Object(null);
-    }
 
-    supports(eventName: string): boolean {
-        return eventName.indexOf('.') > -1;
+        this.checkSupport();
     }
 
     addEventListener(element: HTMLElement, eventName: string, listener: Function): () => void {
@@ -51,8 +47,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             if (preventDefault) {
                 event.preventDefault();
             }
-            if (once && !this.isOptionSupported(NativeEventOption.Once)) {
-                element.removeEventListener(eventName, intermediateListener, eventOptionsObj);
+            if (once && !this.nativeOptionsSupported[NativeEventOption.Once]) {
+                element.removeEventListener(type, intermediateListener, eventOptionsObj);
             }
             if (noZone) {
                 listener(event);
@@ -77,7 +73,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         if (element === 'window') {
             target = window;
         } else if (element === 'document') {
-            target =  this.doc;
+            target = this.doc;
         } else if (element === 'body' && this.doc) {
             target = this.doc.body;
         } else {
@@ -86,29 +82,44 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         return this.addEventListener(target as HTMLElement, eventName, listener);
     }
 
-    private getEventOptionsObject(options: number): EventOptionsObject {
-        if (this.nativeEventObjectSupported === false || !this.isOptionSupported(NativeEventOption.Capture)) {
+    supports(eventName: string): boolean {
+        return eventName.indexOf('.') > -1;
+    }
+
+    private checkSupport(): void {
+        if (!this.isOptionSupported(NativeEventOption.Capture)) {
             this.nativeEventObjectSupported = false;
+        } else {
+            this.nativeEventObjectSupported = true;
+            this.isOptionSupported(NativeEventOption.Once);
+            this.isOptionSupported(NativeEventOption.Passive);
+        }
+    }
+
+    private getBitValue(options: number[]): number {
+        const len: number = options.length;
+        let val: number = 0;
+        for (let i = 0; i < len; i++) {
+            val = val | options[i];
+        }
+        return val;
+    }
+
+    private getEventOptionsObject(options: number): EventOptionsObject {
+        if (!this.nativeEventObjectSupported) {
             return (options & EventListenerOption.Capture) !== 0;
         }
-
         if (options in this.nativeOptionsObjects) {
             return this.nativeOptionsObjects[options];
         }
 
-        const optionsObj: {[key: string]: EventOptionsObject} = {
+        const optionsObj: { [key: string]: EventOptionsObject } = {
             capture: (options & EventListenerOption.Capture) !== 0,
+            passive: (options & EventListenerOption.Passive) !== 0,
+            once: (options & EventListenerOption.Once) !== 0
         };
-
-        if (this.isOptionSupported(NativeEventOption.Passive)) {
-            optionsObj.passive = (options & EventListenerOption.Passive) !== 0;
-        }
-
-        if (this.isOptionSupported(NativeEventOption.Once)) {
-            optionsObj.once = (options & EventListenerOption.Once) !== 0;
-        }
-
         this.nativeOptionsObjects[options] = optionsObj;
+
         return optionsObj;
     }
 
@@ -118,22 +129,15 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         } else {
             let isSupported: boolean = false;
             try {
-                window.addEventListener(option, null, Object.defineProperty(
-                    {}, option, {get: function(): void {isSupported = true}}
-                ));
-            } catch {}
+                window.addEventListener(option, null, Object.defineProperty({}, option, {
+                    get: function (): void {
+                        isSupported = true
+                    }
+                }));
+            } catch (e) {
+            }
             this.nativeOptionsSupported[option] = isSupported;
             return isSupported;
         }
-    }
-
-
-    private getBitValue(options: number[]): number {
-        const len: number = options.length;
-        let val: number = 0;
-        for(let i = 0; i < len; i++) {
-            val = val | options[i];
-        }
-        return val;
     }
 }
