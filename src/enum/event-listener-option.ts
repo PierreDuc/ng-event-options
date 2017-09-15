@@ -1,18 +1,8 @@
-export type EventListenerOption = "capture" | "once" | "passive";
-
-export module EventListenerOption {
-    export const Capture = "capture";
-    export const Once = "once";
-    export const Passive = "passive";
+export enum EventListenerOption {
+    Capture = 1,
+    Passive = 2,
+    Once = 4,
+    NoZone = 8,
+    Stop = 16,
+    Default = 32
 }
-
-/**
- * TypeError: Cannot create property 'modifierFlagsCache' on string 'capture'. But why..
- */
-/*
- export enum EventListenerOption {
- Capture = "capture",
- Once = "once",
- Passive = "passive"
- }
- */

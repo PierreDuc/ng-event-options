@@ -1,11 +1,20 @@
-import {Component} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html'
+    selector: 'app-root',
+    templateUrl: './app.component.html'
 })
 export class AppComponent {
 
-  public onClick(event: MouseEvent): void {}
+    @HostListener('body:keydown.enter')
+    onKeyDown(): void {
+        console.log('key down');
+    }
+
+    public showFoo: boolean = false;
+
+    public onClick(event: MouseEvent): void {
+        this.showFoo = !this.showFoo;
+    }
 
 }

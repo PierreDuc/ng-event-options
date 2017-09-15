@@ -1,5 +1,6 @@
 const globals = {
     '@angular/core': 'ng.core',
+    '@angular/platform-browser': 'ng.platformBrowser',
     '@angular/common': 'ng.common'
 };
 
