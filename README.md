@@ -48,8 +48,12 @@ This will create a click event on the button which is passive (p), will be fired
 fired once (o), and is running outside the `ngZone` (n)
     
 ## Supported events
-
-All events should be supported
+abort,activate,beforeactivate,beforedeactivate,blur,canplay,canplaythrough,change,click,contextmenu,dblclick,
+deactivate,drag,dragend,dragenter,dragleave,dragover,dragstart,drop,durationchange,emptied,ended,error,focus,
+fullscreenchange,fullscreenerror,input,invalid,keydown,keypress,keyup,load,loadeddata,loadedmetadata,loadstart,
+mousedown,mousemove,mouseout,mouseover,mouseup,mousewheel,pause,play,playing,pointerlockchange,pointerlockerror,
+progress,ratechange,readystatechange,reset,scroll,seeked,seeking,select,selectionchange,selectstart,stalled,stop,
+submit,suspend,timeupdate,touchcancel,touchend,touchmove,touchstart,volumechange,waiting
 
 ## Limitations
 

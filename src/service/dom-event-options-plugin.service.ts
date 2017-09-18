@@ -14,6 +14,76 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     private readonly nativeOptionsObjects: { [key: string]: AddEventListenerOptions } | any;
 
     private readonly nativeOptionsSupported: { [key: string]: boolean } | any;
+    
+    private readonly supportedEvents: [keyof DocumentEventMap] = [
+        "abort",
+        "activate",
+        "beforeactivate",
+        "beforedeactivate",
+        "blur",
+        "canplay",
+        "canplaythrough",
+        "change",
+        "click",
+        "contextmenu",
+        "dblclick",
+        "deactivate",
+        "drag",
+        "dragend",
+        "dragenter",
+        "dragleave",
+        "dragover",
+        "dragstart",
+        "drop",
+        "durationchange",
+        "emptied",
+        "ended",
+        "error",
+        "focus",
+        "fullscreenchange",
+        "fullscreenerror",
+        "input",
+        "invalid",
+        "keydown",
+        "keypress",
+        "keyup",
+        "load",
+        "loadeddata",
+        "loadedmetadata",
+        "loadstart",
+        "mousedown",
+        "mousemove",
+        "mouseout",
+        "mouseover",
+        "mouseup",
+        "mousewheel",
+        "pause",
+        "play",
+        "playing",
+        "pointerlockchange",
+        "pointerlockerror",
+        "progress",
+        "ratechange",
+        "readystatechange",
+        "reset",
+        "scroll",
+        "seeked",
+        "seeking",
+        "select",
+        "selectionchange",
+        "selectstart",
+        "stalled",
+        "stop",
+        "submit",
+        "suspend",
+        "timeupdate",
+        "touchcancel",
+        "touchend",
+        "touchmove",
+        "touchstart",
+        "volumechange",
+        "waiting"
+    ];
 
     constructor(private readonly ngZone: NgZone,
                 @Inject(DOCUMENT) private readonly doc: Document) {
@@ -92,7 +162,20 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     }
 
     supports(eventName: string): boolean {
-        return eventName.indexOf('.') > -1;
+        const [type, optionStr]: string[] = eventName.split('.');
+        if (this.supportedEvents.indexOf(type as keyof DocumentEventMap) === -1) {
+            return false;
+        }
+        if (optionStr) {
+            return optionStr
+            .replace('p', '')
+            .replace('c', '')
+            .replace('o', '')
+            .replace('n', '')
+            .replace('s', '')
+            .replace('d', '').length === 0;
+        }
+        return false;
     }
 
     private checkSupport(): void {

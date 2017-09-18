@@ -53,14 +53,17 @@ describe('Dom event options plugin', () => {
         })
     );
 
-    it('supports should support only events with a dot',
+    it('supports should support only events with a dot and with proper settings and valid dom event',
         inject([DomEventOptionsPlugin], (domEventOptionsPlugin: DomEventOptionsPlugin) => {
             expect(domEventOptionsPlugin).toBeDefined();
             expect(domEventOptionsPlugin.supports('test')).toEqual(false);
             expect(domEventOptionsPlugin.supports('test#pasd')).toEqual(false);
-            expect(domEventOptionsPlugin.supports('test.')).toEqual(true);
-            expect(domEventOptionsPlugin.supports('.')).toEqual(true);
+            expect(domEventOptionsPlugin.supports('test.')).toEqual(false);
+            expect(domEventOptionsPlugin.supports('.')).toEqual(false);
             expect(domEventOptionsPlugin.supports('click.pcon')).toEqual(true);
+            expect(domEventOptionsPlugin.supports('mousemove.pp')).toEqual(false);
+            expect(domEventOptionsPlugin.supports('mousedown.p')).toEqual(true);
+            expect(domEventOptionsPlugin.supports('submit.pconsd')).toEqual(true);
         })
     );
 });
