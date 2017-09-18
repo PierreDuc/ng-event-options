@@ -54,3 +54,7 @@ All events should be supported
 ## Limitations
 
 * Keymap event is not (yet) supported `(keydown.enter.pcon)`
+
+## Todo
+
+* Write proper e2e

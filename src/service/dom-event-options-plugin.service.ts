@@ -3,8 +3,10 @@ import {Inject, Injectable, NgZone} from "@angular/core";
 import {EventListenerOption} from "../enum/event-listener-option";
 import {NativeEventOption} from "../enum/native-event-option.enum";
 import {EventOptionsObject} from "../type/event-options-object";
+import {GlobalEventTarget} from "../enum/global-event-target";
 
 @Injectable()
+// EventManagerPlugin is not yet part of the public API of Angular, once it is I can remove the `addGlobalEventListener`
 export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
     private nativeEventObjectSupported: boolean | undefined;
@@ -25,6 +27,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
         const [type, optionStr]: string[] = eventName.split('.');
 
+        const inZone: boolean = NgZone.isInAngularZone();
         const passive: number = optionStr.indexOf('p') > -1 ? EventListenerOption.Passive : 0;
         const preventDefault: number = optionStr.indexOf('d') > -1 ? EventListenerOption.Default : 0;
 
@@ -38,7 +41,9 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         const capture: number = optionStr.indexOf('c') > -1 ? EventListenerOption.Capture : 0;
 
         const bitVal: number = this.getBitValue([capture, noZone, once, passive, stop, preventDefault]);
-        const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal) as boolean;
+
+        // Not really boolean, but we gotta kid TS
+        const eventOptionsObj: boolean = this.getEventOptionsObject(bitVal) as boolean;
 
         const intermediateListener: EventListener = (event: Event) => {
             if (stop) {
@@ -50,7 +55,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             if (once && !this.nativeOptionsSupported[NativeEventOption.Once]) {
                 element.removeEventListener(type, intermediateListener, eventOptionsObj);
             }
-            if (noZone) {
+            if (noZone || !inZone) {
                 listener(event);
             } else {
                 this.ngZone.run(() => {
@@ -59,25 +64,29 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             }
         };
 
-        this.ngZone.runOutsideAngular(() => {
+        if (inZone) {
+            this.ngZone.runOutsideAngular(() => {
+                element.addEventListener(type, intermediateListener, eventOptionsObj);
+            });
+        } else {
             element.addEventListener(type, intermediateListener, eventOptionsObj);
-        });
+        }
 
         return () => this.ngZone.runOutsideAngular(() => {
             element.removeEventListener(type, intermediateListener, eventOptionsObj);
         });
     }
 
-    addGlobalEventListener(element: string, eventName: string, listener: Function): () => void {
-        let target: EventTarget;
-        if (element === 'window') {
-            target = window;
-        } else if (element === 'document') {
+    addGlobalEventListener(element: GlobalEventTarget, eventName: string, listener: Function): () => void {
+        let target: EventTarget|undefined;
+        if (element === GlobalEventTarget.Window) {
+            target = typeof window !== 'undefined' ? window : undefined;
+        } else if (element === GlobalEventTarget.Document) {
             target = this.doc;
-        } else if (element === 'body' && this.doc) {
+        } else if (element === GlobalEventTarget.Body && this.doc) {
             target = this.doc.body;
         } else {
-            throw new Error(`Unsupported event target ${target} for event ${eventName}`);
+            throw new Error(`Unsupported event target ${element} for event ${eventName}`);
         }
         return this.addEventListener(target as HTMLElement, eventName, listener);
     }
@@ -126,10 +135,10 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     private isOptionSupported(option: NativeEventOption): boolean {
         if (option in this.nativeOptionsSupported) {
             return this.nativeOptionsSupported[option];
-        } else {
+        } else if (typeof window !== 'undefined') {
             let isSupported: boolean = false;
             try {
-                window.addEventListener(option, null, Object.defineProperty({}, option, {
+                window.addEventListener(option, null as any, Object.defineProperty({}, option, {
                     get: function (): void {
                         isSupported = true
                     }
@@ -138,6 +147,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             }
             this.nativeOptionsSupported[option] = isSupported;
             return isSupported;
+        } else {
+            return false;
         }
     }
 }
