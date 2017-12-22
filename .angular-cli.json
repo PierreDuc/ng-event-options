@@ -1,26 +1,25 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "project": {
-    "name": "test-ng-event-options"
+    "name": "ng-event-options"
   },
   "apps": [
     {
-      "root": ".",
-      "outDir": "test/dist-test",
+      "root": "src",
+      "outDir": "dist",
       "assets": [],
-      "index": "test/src/index.html",
-      "main": "test/src/main.ts",
-      "polyfills": "test/src/polyfills.ts",
-      "test": "./test/src/test.ts",
-      "tsconfig": "test/src/tsconfig.app.json",
-      "testTsconfig": "test/src/tsconfig.spec.json",
+      "index": "index.html",
+      "main": "main.ts",
+      "polyfills": "polyfills.ts",
+      "test": "test.ts",
+      "tsconfig": "tsconfig.app.json",
+      "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
-      "styles": [],
       "scripts": [],
-      "environmentSource": "test/src/environments/environment.ts",
+      "environmentSource": "environments/environment.ts",
       "environments": {
-        "dev": "test/src/environments/environment.ts",
-        "prod": "test/src/environments/environment.prod.ts"
+        "dev": "environments/environment.ts",
+        "prod": "environments/environment.prod.ts"
       }
     }
   ],
@@ -31,13 +30,16 @@
   },
   "lint": [
     {
-      "project": "test/src/tsconfig.app.json"
+      "project": "src/tsconfig.app.json",
+      "exclude": "**/node_modules/**"
     },
     {
-      "project": "test/src/tsconfig.spec.json"
+      "project": "src/tsconfig.spec.json",
+      "exclude": "**/node_modules/**"
     },
     {
-      "project": "test/e2e/tsconfig.e2e.json"
+      "project": "e2e/tsconfig.e2e.json",
+      "exclude": "**/node_modules/**"
     }
   ],
   "test": {
