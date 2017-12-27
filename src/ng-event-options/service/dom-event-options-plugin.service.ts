@@ -21,6 +21,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
     private readonly keyEvents: [keyof DocumentEventMap] = ['keydown', 'keypress', 'keyup'];
 
+    private readonly separator: string = '.';
+
     constructor(private readonly ngZone: NgZone,
                 @Inject(DOCUMENT) private readonly doc: any,
                 @Inject(PLATFORM_ID) private readonly platformId: Object) {
@@ -103,22 +105,21 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     }
 
     supports(eventName: string): boolean {
-        let [type, options]: string[] = eventName.split('.');
-        if (!options || !type) {
+        const [type, options]: string[] = this.getTypeOptions(eventName);
+        if (!type) {
             return false;
         }
-
-        type = type.trim();
-        options = options.trim();
 
         if (options.length === 1 && this.keyEvents.indexOf(type as keyof DocumentEventMap) > -1) {
             return false;
         }
 
+        let testStr: string = options;
+
         for (const option in OptionSymbol) {
             if (OptionSymbol.hasOwnProperty(option)) {
-                options = options.replace(OptionSymbol[option], '');
-                if (options.length === 0) {
+                testStr = testStr.replace(OptionSymbol[option], '');
+                if (testStr.length === 0) {
                     return true;
                 }
             }
@@ -189,5 +190,18 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         }
 
         return this.nativeOptionsSupported[option];
+    }
+
+    private getTypeOptions(eventName: string): string[] {
+        let [type, options]: string[] = eventName.split(this.separator);
+
+        if (!options || !type) {
+            return [];
+        }
+
+        type = type.trim();
+        options = options.trim();
+
+        return [type, options];
     }
 }

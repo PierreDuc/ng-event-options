@@ -81,7 +81,7 @@ describe('Dom event options plugin', () => {
     });
 
     describe('Support', () => {
-        it('should support only events with a dot and with proper settings and valid dom event', async () => {
+        it('should support only events with a dot and with proper settings', async () => {
             await Promise.all([
                 expect(domEventOptionsPlugin.supports('test')).toEqual(false),
                 expect(domEventOptionsPlugin.supports('click#pcon')).toEqual(false),
@@ -92,7 +92,9 @@ describe('Dom event options plugin', () => {
                 expect(domEventOptionsPlugin.supports('mousedown.p')).toEqual(true),
                 expect(domEventOptionsPlugin.supports('submit.pconsdb')).toEqual(true),
                 expect(domEventOptionsPlugin.supports('keydown.p')).toEqual(false),
-                expect(domEventOptionsPlugin.supports('keydown.p*')).toEqual(true)
+                expect(domEventOptionsPlugin.supports('keydown.p*')).toEqual(true),
+                expect(domEventOptionsPlugin.supports('foo.pc')).toEqual(true),
+                expect(domEventOptionsPlugin.supports(' click. pc ')).toEqual(true)
             ]);
         });
 
