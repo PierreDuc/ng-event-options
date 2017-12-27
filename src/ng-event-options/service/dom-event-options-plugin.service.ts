@@ -17,15 +17,22 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
     private readonly nativeOptionsObjects: { [key: string]: AddEventListenerOptions } = {};
 
-    private readonly nativeOptionsSupported: { [key: string]: boolean } = {};
+    private readonly nativeOptionsSupported: { [key: string]: boolean } = {
+        capture: false,
+        once: false,
+        passive: false
+    };
 
     private readonly keyEvents: [keyof DocumentEventMap] = ['keydown', 'keypress', 'keyup'];
 
     private readonly separator: string = '.';
 
+    private readonly optionSymbols: OptionSymbol[] = [];
+
     constructor(private readonly ngZone: NgZone,
                 @Inject(DOCUMENT) private readonly doc: any,
                 @Inject(PLATFORM_ID) private readonly platformId: Object) {
+        this.setOptionSymbols();
         this.checkSupport();
     }
 
@@ -53,6 +60,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         const bitVal: number = this.getBitValue(capture, noZone, once, passive, stop, preventDefault, inBrowser);
         const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal);
         const inZone: boolean = NgZone.isInAngularZone();
+
+        console.log('inZone', inZone);
 
         const intermediateListener: EventListener = (event: Event) => {
             if (stop) {
@@ -88,10 +97,14 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     }
 
     addGlobalEventListener(element: GlobalEventTarget, eventName: string, listener: EventListener): () => void {
+        if (!isPlatformBrowser(this.platformId)) {
+            return () => {};
+        }
+
         let target: EventTarget | undefined;
 
         if (element === GlobalEventTarget.Window) {
-            target = typeof window !== 'undefined' ? window : undefined;
+            target = window;
         } else if (element === GlobalEventTarget.Document) {
             target = this.doc;
         } else if (element === GlobalEventTarget.Body && this.doc) {
@@ -114,28 +127,28 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             return false;
         }
 
-        let testStr: string = options;
+        const chosenOptions: OptionSymbol[] = options.split('') as OptionSymbol[];
 
-        for (const option in OptionSymbol) {
-            if (OptionSymbol.hasOwnProperty(option)) {
-                testStr = testStr.replace(OptionSymbol[option], '');
-                if (testStr.length === 0) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return chosenOptions.every((option: OptionSymbol, index: number) =>
+            this.optionSymbols.indexOf(option) !== -1 && index === chosenOptions.lastIndexOf(option)
+        );
     }
 
     private checkSupport(): void {
-        if (!this.isOptionSupported(NativeEventOption.Capture)) {
-            this.nativeEventObjectSupported = false;
-        } else {
-            this.nativeEventObjectSupported = true;
-            this.isOptionSupported(NativeEventOption.Once);
-            this.isOptionSupported(NativeEventOption.Passive);
-        }
+        const supportObj: object = new Object(null);
+        Object.keys(NativeEventOption).map(optionKey => NativeEventOption[optionKey as any]).forEach(nativeOption =>
+            Object.defineProperty(supportObj, nativeOption, {
+                get: () => {
+                    this.nativeOptionsSupported[nativeOption] = true;
+                }
+            })
+        );
+
+        try {
+            window.addEventListener('test', new Function as EventListener, supportObj);
+        } catch {}
+
+        this.nativeEventObjectSupported = this.nativeOptionsSupported[NativeEventOption.Capture];
     }
 
     private getBitValue(...options: number[]): number {
@@ -170,28 +183,6 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         return optionsObj;
     }
 
-    private isOptionSupported(option: NativeEventOption): boolean {
-        if (option in this.nativeOptionsSupported) {
-            return this.nativeOptionsSupported[option];
-        }
-
-        this.nativeOptionsSupported[option] = false;
-
-        if (!isPlatformBrowser(this.platformId)) {
-            return this.nativeOptionsSupported[option];
-        }
-
-        try {
-            window.addEventListener(option, () => {
-            }, Object.defineProperty({}, option, {
-                get: () => this.nativeOptionsSupported[option] = true
-            }));
-        } catch {
-        }
-
-        return this.nativeOptionsSupported[option];
-    }
-
     private getTypeOptions(eventName: string): string[] {
         let [type, options]: string[] = eventName.split(this.separator);
 
@@ -203,5 +194,12 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         options = options.trim();
 
         return [type, options];
+    }
+
+    private setOptionSymbols(): void {
+        this.optionSymbols.length = 0;
+        Object.keys(OptionSymbol).forEach(
+            optionKey => this.optionSymbols.push(OptionSymbol[optionKey as any] as OptionSymbol)
+        );
     }
 }

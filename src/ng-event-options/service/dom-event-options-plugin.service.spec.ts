@@ -1,25 +1,33 @@
 import {NgZone} from '@angular/core';
-import {inject, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
 import {DomEventOptionsPlugin} from './dom-event-options-plugin.service';
 
 import {ErrorMsg} from '../enum/error-msg.enum';
 import {GlobalEventTarget} from '../enum/global-event-target.enum';
 import {OptionSymbol} from '../enum/option-symbol.enum';
+import {NativeEventOption} from '../enum/native-event-option.enum';
 
 let domEventOptionsPlugin: DomEventOptionsPlugin;
 let el: HTMLDivElement;
+let ngZone: NgZone;
 
 describe('Dom event options plugin', () => {
     const noop: EventListener = () => void 0;
-    const addEvent = (options: string = '*', element: HTMLElement = el, callback: EventListener = noop): Function =>
-        domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback);
-    const addGlobalEvent = (target: GlobalEventTarget, options: string = '*', callback: EventListener = noop) =>
+    const addEvent = (options: string = '*', element: HTMLElement = el, callback: EventListener = noop, useZone: boolean = true) => {
+        if (useZone) {
+            return ngZone.run(() => domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback));
+        } else {
+            return ngZone.runOutsideAngular(() => domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback));
+        }
+    };
+    const addGlobalEvent = (target: GlobalEventTarget, options: string = '*', callback: EventListener = noop): () => void =>
         domEventOptionsPlugin.addGlobalEventListener(target, `click.${options}`, callback);
 
     beforeEach(() => {
         TestBed.configureTestingModule({providers: [DomEventOptionsPlugin]});
         domEventOptionsPlugin = TestBed.get(DomEventOptionsPlugin);
+        ngZone = TestBed.get(NgZone);
     });
 
     it('should have tested for browser supported', async () => {
@@ -34,17 +42,18 @@ describe('Dom event options plugin', () => {
         await expect(el.removeEventListener).toHaveBeenCalledTimes(1);
     });
 
-    it('should reuse AddEventListenerObjects for native options regardless of the order of options',
-        inject([DomEventOptionsPlugin], async (domEventOptions: DomEventOptionsPlugin) => {
-            const element: HTMLDivElement = document.createElement('div');
-            domEventOptions.addEventListener(element, `click.${OptionSymbol.Passive}${OptionSymbol.Capture}`, noop);
-            domEventOptions.addEventListener(element, `click.${OptionSymbol.Capture}${OptionSymbol.Passive}`, noop);
-            domEventOptions.addEventListener(element, `click.${OptionSymbol.Capture}${OptionSymbol.NoZone}${OptionSymbol.Passive}`, noop);
-            domEventOptions.addEventListener(element, `click.${OptionSymbol.Passive}${OptionSymbol.NoZone}`, noop);
+    it('should reuse AddEventListenerObjects for native options regardless of the order of options', async () => {
+        el = document.createElement('div');
 
-            await expect(Object.keys(domEventOptions['nativeOptionsObjects']).length).toEqual(2);
-        })
-    );
+        (domEventOptionsPlugin as any)['nativeOptionsObjects'] = {};
+
+        addEvent(OptionSymbol.Passive + OptionSymbol.Capture);
+        addEvent(OptionSymbol.Capture + OptionSymbol.Passive);
+        addEvent(OptionSymbol.Capture + OptionSymbol.NoZone + OptionSymbol.Passive);
+        addEvent(OptionSymbol.Passive + OptionSymbol.NoZone);
+
+        await expect(Object.keys(domEventOptionsPlugin['nativeOptionsObjects']).length).toEqual(2);
+    });
 
     describe('AddEventListener', () => {
         it('should return a function', async () => {
@@ -68,7 +77,9 @@ describe('Dom event options plugin', () => {
 
     describe('AddGlobalEventListener', () => {
         it('addGlobalEventListener should return a function', async () => {
-            expect(typeof addGlobalEvent(GlobalEventTarget.Window)).toEqual('function');
+            Object.values(GlobalEventTarget).forEach(globalTarget =>
+                expect(typeof addGlobalEvent(globalTarget as GlobalEventTarget)).toEqual('function')
+            );
         });
 
         it('addGlobalEventListener throw on unknown element name', async () => {
@@ -124,6 +135,14 @@ describe('Dom event options plugin', () => {
             performClickEvent(OptionSymbol.Once);
             await expect(listener.listener).toHaveBeenCalledTimes(1);
         });
+
+        it('should call the callback only once even when `Once` is not supported', async () => {
+            const onceSupported: boolean = domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once];
+            domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once] = false;
+            performClickEvent(OptionSymbol.Once);
+            await expect(listener.listener).toHaveBeenCalledTimes(1);
+            domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once] = onceSupported;
+        });
     });
 
     describe('Check `NoZone` option', () => {
@@ -137,20 +156,31 @@ describe('Dom event options plugin', () => {
             await expect(result).toEqual(false);
         });
 
-        it('should not call runOutsideAngular when already outside NgZone',
-            inject([NgZone], async (ngZone: NgZone) => {
-                spyOn<NgZone>(ngZone, 'runOutsideAngular');
-                el = document.createElement('div');
-                ngZone.runOutsideAngular(() => addEvent(OptionSymbol.NoZone));
-                el.click();
+        it('should not call runOutsideAngular when already outside NgZone', async () => {
+            spyOn<NgZone>(ngZone, 'runOutsideAngular');
+            spyOn<NgZone>(ngZone, 'run');
+            el = document.createElement('div');
+            addEvent(OptionSymbol.NoZone, el, noop, false);
+            el.click();
 
-                await expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(1);
-            })
-        );
+            await expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(1);
+            await expect(ngZone.run).toHaveBeenCalledTimes(0);
+        });
+
+        it('should call runOutsideAngular and run when inside NgZone', async () => {
+            spyOn<NgZone>(ngZone, 'runOutsideAngular');
+            spyOn<NgZone>(ngZone, 'run');
+            el = document.createElement('div');
+            addEvent();
+            el.click();
+
+            await expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(0);
+            await expect(ngZone.run).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('Check `PreventDefault` option', () => {
-        it('default behaviour should be prevented when the `PreventDefault` option is used', async () => {
+        it('should prevent default behaviour when the `PreventDefault` option is used', async () => {
             el = document.createElement('div');
 
             const result: boolean = await new Promise<boolean>(resolve => {
@@ -213,13 +243,33 @@ describe('Dom event options plugin', () => {
     });
 
     describe('Check `Capture` option', () => {
-        it('should create an event triggered in the capture phase of the event', async () => {
-            const parent: HTMLDivElement = document.createElement('div');
-            let childVisited: boolean = false;
-            let inCapture: boolean = false;
+        let parent: HTMLDivElement;
+        let childVisited: boolean;
+        let inCapture: boolean;
 
+        beforeEach(() => {
+            parent = document.createElement('div');
             el = document.createElement('div');
             parent.appendChild(el);
+
+            childVisited = false;
+            inCapture = false;
+        });
+
+        it('should create an event triggered in the capture phase', async () => {
+            const result: boolean = await new Promise<boolean>(resolve => {
+                addEvent(OptionSymbol.Capture, parent, () => inCapture = !childVisited);
+                addEvent(OptionSymbol.ForceSymbol, parent, () => resolve(childVisited && inCapture));
+                addEvent(OptionSymbol.ForceSymbol, el, () => childVisited = true);
+                el.click();
+            });
+
+            await expect(result).toEqual(true);
+        });
+
+        it('should create an event triggered in the capture phase when there is no native event object support', async () => {
+            const nativeSupported: boolean = domEventOptionsPlugin['nativeEventObjectSupported'] as boolean;
+            domEventOptionsPlugin['nativeEventObjectSupported'] = false;
 
             const result: boolean = await new Promise<boolean>(resolve => {
                 addEvent(OptionSymbol.Capture, parent, () => inCapture = !childVisited);
@@ -229,6 +279,7 @@ describe('Dom event options plugin', () => {
             });
 
             await expect(result).toEqual(true);
+            domEventOptionsPlugin['nativeEventObjectSupported'] = nativeSupported;
         });
     });
 
@@ -267,9 +318,16 @@ describe('Dom event options plugin', () => {
             const platformId: Object = domEventOptionsPlugin['platformId'];
             (domEventOptionsPlugin as any).platformId = 'non-browser';
 
-            addEvent(OptionSymbol.InBrowser, el, listener.listener);
+            const callback1: () => void = addEvent(OptionSymbol.InBrowser, el, listener.listener);
+            const callback2: () => void = addGlobalEvent(GlobalEventTarget.Window, OptionSymbol.InBrowser, listener.listener);
             el.click();
+
+            await expect(typeof callback1).toEqual('function');
+            await expect(typeof callback2).toEqual('function');
             await expect(listener.listener).toHaveBeenCalledTimes(0);
+
+            callback1();
+            callback2();
 
             (domEventOptionsPlugin as any).platformId = platformId;
         });
