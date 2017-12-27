@@ -43,6 +43,11 @@
     }
   ],
   "test": {
+    "codeCoverage": {
+      "exclude": [
+        "src/app/app.component.ts"
+      ]
+    },
     "karma": {
       "config": "./karma.conf.js"
     }

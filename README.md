@@ -1,5 +1,6 @@
 [![npm](https://img.shields.io/npm/v/ng-event-options.svg)](https://www.npmjs.com/package/ng-event-options)
 [![Build Status](https://travis-ci.org/PierreDuc/ng-event-options.svg?branch=master)](https://travis-ci.org/PierreDuc/ng-event-options)
+[![codecov](https://codecov.io/gh/PierreDuc/ng-event-options/branch/master/graph/badge.svg)](https://codecov.io/gh/PierreDuc/ng-event-options)
 
 # NgEventOptions
 
