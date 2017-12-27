@@ -8,7 +8,8 @@ describe('ng-event-options App', () => {
         preventDefault: {clicks: 1, expect: true},
         ngZone: {clicks: 1, expect: true},
         capture: {clicks: 1, expect: true},
-        stop: {clicks: 1, expect: 1, initial: '-1'}
+        stop: {clicks: 1, expect: 1, initial: '-1'},
+        stopEmpty: {clicks: 1, expect: 'stopEmptyTest'}
     };
 
     let page: AppPage;

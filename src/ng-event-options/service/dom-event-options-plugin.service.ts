@@ -63,10 +63,12 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
             if (once && !this.nativeOptionsSupported[NativeEventOption.Once]) {
                 element.removeEventListener(type, intermediateListener, eventOptionsObj);
             }
-            if (noZone || !inZone) {
-                listener(event);
-            } else {
-                this.ngZone.run(() => listener(event));
+            if (listener) {
+                if (noZone || !inZone) {
+                    listener(event);
+                } else {
+                    this.ngZone.run(() => listener(event));
+                }
             }
         };
 

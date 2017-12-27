@@ -21,6 +21,9 @@ export class AppComponent {
     // expect "true"
     public captureTest: string = 'captureTest';
 
+    // expect "true"
+    public stopEmptyTest: string = 'stopEmptyTest';
+
     // expect 1
     public stopTest: number = -1;
 
@@ -78,5 +81,13 @@ export class AppComponent {
 
     onStopBubbleParentClick(event: MouseEvent): void {
         this.stopTest = 3;
+    }
+
+    onStopEmptyClick(event: MouseEvent): void {
+        this.stopEmptyTest = 'sibling';
+    }
+
+    onStopParentEmptyClick(event: MouseEvent): void {
+        this.stopEmptyTest = 'parent';
     }
 }

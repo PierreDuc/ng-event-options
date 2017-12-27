@@ -161,19 +161,21 @@ describe('Dom event options plugin', () => {
     });
 
     describe('Check `Stop` option', () => {
-        it('should stop the immediate propagation of an event', async () => {
-            el = document.createElement('div');
+        let listeners: { [key: string]: EventListener };
 
-            const listeners: { [key: string]: EventListener } = {
+        beforeEach(() => {
+            el = document.createElement('div');
+            listeners = {
                 listener1: () => {
                 },
                 listener2: () => {
                 }
             };
-
             spyOn(listeners, 'listener1');
             spyOn(listeners, 'listener2');
+        });
 
+        it('should stop the immediate propagation of an event', async () => {
             addEvent(OptionSymbol.Stop, el, listeners.listener1);
             addEvent(OptionSymbol.ForceSymbol, el, listeners.listener2);
 
@@ -185,18 +187,7 @@ describe('Dom event options plugin', () => {
 
         it('should stop the propagation to a parent', async () => {
             const parent: HTMLDivElement = document.createElement('div');
-            el = document.createElement('div');
             parent.appendChild(el);
-
-            const listeners: { [key: string]: EventListener } = {
-                listener1: () => {
-                },
-                listener2: () => {
-                }
-            };
-
-            spyOn(listeners, 'listener1');
-            spyOn(listeners, 'listener2');
 
             addEvent(OptionSymbol.ForceSymbol, parent, listeners.listener2);
             addEvent(OptionSymbol.Stop, el, listeners.listener1);
@@ -205,6 +196,16 @@ describe('Dom event options plugin', () => {
             el.click();
 
             await expect(listeners.listener1).toHaveBeenCalledTimes(1);
+            await expect(listeners.listener2).toHaveBeenCalledTimes(0);
+        });
+
+        it('should work without actually having a listener', async () => {
+            addEvent(OptionSymbol.Stop, el, null as any);
+            addEvent(OptionSymbol.ForceSymbol, el, listeners.listener2);
+
+            el.click();
+
+            await expect(listeners.listener1).toHaveBeenCalledTimes(0);
             await expect(listeners.listener2).toHaveBeenCalledTimes(0);
         });
     });

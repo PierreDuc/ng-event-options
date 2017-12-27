@@ -13,3 +13,7 @@
 <div (click.c)="onStopCaptureParentClick($event)" (click.*)="onStopBubbleParentClick($event)">
     <div id="stopTest" (click.s)="onStopChildClick($event)" (click.*)="onStopTestChildClick($event)" [innerHtml]="stopTest"></div>
 </div>
+
+<div (click.*)="onStopParentEmptyClick($event)">
+    <div id="stopEmptyTest" (click.s)="undefined" (click.*)="onStopEmptyClick($event)" [innerHtml]="stopEmptyTest"></div>
+</div>
