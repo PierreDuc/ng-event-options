@@ -61,8 +61,6 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal);
         const inZone: boolean = NgZone.isInAngularZone();
 
-        console.log('inZone', inZone);
-
         const intermediateListener: EventListener = (event: Event) => {
             if (stop) {
                 event.stopPropagation();
