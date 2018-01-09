@@ -1,5 +1,5 @@
 export enum NativeEventOption {
-    Capture = 'capture',
-    Passive = 'passive',
-    Once = 'once'
+  Capture = 'capture',
+  Passive = 'passive',
+  Once = 'once'
 }
