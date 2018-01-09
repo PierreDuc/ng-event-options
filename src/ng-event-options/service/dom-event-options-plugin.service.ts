@@ -58,7 +58,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     const noZone: number = options.indexOf(OptionSymbol.NoZone) > -1 ? EventOption.NoZone : 0;
     const capture: number = options.indexOf(OptionSymbol.Capture) > -1 ? EventOption.Capture : 0;
 
-    const bitVal: number = getBitValue(capture, once, passive, stop);
+    const bitVal: number = getBitValue(capture, once, passive);
     const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal);
     const inZone: boolean = NgZone.isInAngularZone();
 
