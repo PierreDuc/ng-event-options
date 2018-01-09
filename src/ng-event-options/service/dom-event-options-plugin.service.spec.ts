@@ -58,7 +58,7 @@ describe('Dom event options plugin', () => {
   describe('AddEventListener', () => {
     it('should return a function', async () => {
       el = document.createElement('div');
-      expect(typeof addEvent()).toEqual('function');
+      await expect(typeof addEvent()).toEqual('function');
     });
 
     it('should be called on the element', async () => {
@@ -296,6 +296,27 @@ describe('Dom event options plugin', () => {
       });
 
       await expect(result).toEqual(false);
+    });
+
+    it('should not create a passive event when passive is not supported', async () => {
+      const nativeEventObjectSupported: boolean = domEventOptionsPlugin['nativeEventObjectSupported'] as boolean;
+      const passiveSupported: boolean = domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive];
+      domEventOptionsPlugin['nativeEventObjectSupported'] = false;
+      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive] = false;
+
+      el = document.createElement('div');
+
+      const result: boolean = await new Promise<boolean>(resolve => {
+        addEvent(OptionSymbol.Passive, el, event => {
+          event.preventDefault();
+          resolve(event.defaultPrevented);
+        });
+        el.click();
+      });
+
+      await expect(result).toEqual(true);
+      domEventOptionsPlugin['nativeEventObjectSupported'] = nativeEventObjectSupported;
+      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive] = passiveSupported;
     });
   });
 

@@ -16,9 +16,9 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
   private nativeEventObjectSupported?: boolean;
 
-  private readonly nativeOptionsObjects: { [key: string]: AddEventListenerOptions } = {};
+  private readonly nativeOptionsObjects: { [key: number]: AddEventListenerOptions } = {};
 
-  private readonly nativeOptionsSupported: { [key: string]: boolean } = {
+  private readonly nativeOptionsSupported: { [O in NativeEventOption]: boolean } = {
     capture: false,
     once: false,
     passive: false
@@ -38,7 +38,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   }
 
   addEventListener(element: HTMLElement, eventName: string, listener: EventListener): () => void {
-    const {type, options}: string[] = eventName.split(this.separator);
+    const [type, options]: string[] = eventName.split(this.separator);
     const inBrowser: number = options.indexOf(OptionSymbol.InBrowser) > -1 ? EventOption.InBrowser : 0;
 
     if (inBrowser && !isPlatformBrowser(this.platformId)) {
@@ -139,7 +139,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     Object.keys(NativeEventOption).map(optionKey => NativeEventOption[optionKey as any]).forEach(nativeOption =>
       Object.defineProperty(supportObj, nativeOption, {
         get: () => {
-          this.nativeOptionsSupported[nativeOption] = true;
+          this.nativeOptionsSupported[nativeOption as NativeEventOption] = true;
         }
       })
     );
@@ -178,7 +178,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     let [type, options]: string[] = eventName.split(this.separator);
 
     if (!options || !type) {
-      return {type, options};
+      return {type: '', options: ''};
     }
 
     type = type.trim();
