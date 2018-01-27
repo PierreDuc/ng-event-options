@@ -98,10 +98,10 @@ export class AppComponent {
   }
 
   onThrottleClick(event: MouseEvent): void {
-    console.log(event);
+    // console.log(event);
   }
 
   onDebounceClick(event: MouseEvent): void {
-    console.log(event);
+    // console.log(event);
   }
 }
