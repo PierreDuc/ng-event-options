@@ -1,19 +1,23 @@
-<div id="passiveTest" (click.p)="onPassiveClick($event)" [innerHtml]="passiveTest"></div>
-
-<div id="onceTest" (click.o)="onOnceClick($event)" [innerHtml]="onceTest"></div>
-
-<div id="ngZoneTest" (click.n)="onNgZoneClick($event)" [innerHtml]="ngZoneTest"></div>
-
-<div id="preventDefaultTest" (click.d)="onPreventDefaultClick($event)" [innerHtml]="preventDefaultTest"></div>
+<button id="passiveTest" (click.p)="onPassiveClick($event)" [innerHtml]="passiveTest"></button>
+<br>
+<button id="onceTest" (click.o)="onOnceClick($event)" [innerHtml]="onceTest"></button>
+<br>
+<button id="ngZoneTest" (click.n)="onNgZoneClick($event)" [innerHtml]="ngZoneTest"></button>
+<br>
+<button id="preventDefaultTest" (click.d)="onPreventDefaultClick($event)" [innerHtml]="preventDefaultTest"></button>
 
 <div (click.c)="onCaptureParentClick($event)" (click.*)="onBubbleParentClick($event)">
-    <div id="captureTest" (click.*)="onCaptureChildClick($event)" [innerHtml]="captureTest"></div>
+    <button id="captureTest" (click.*)="onCaptureChildClick($event)" [innerHtml]="captureTest"></button>
 </div>
 
 <div (click.c)="onStopCaptureParentClick($event)" (click.*)="onStopBubbleParentClick($event)">
-    <div id="stopTest" (click.s)="onStopChildClick($event)" (click.*)="onStopTestChildClick($event)" [innerHtml]="stopTest"></div>
+    <button id="stopTest" (click.s)="onStopChildClick($event)" (click.*)="onStopTestChildClick($event)" [innerHtml]="stopTest"></button>
 </div>
 
 <div (click.*)="onStopParentEmptyClick($event)">
-    <div id="stopEmptyTest" (click.s)="undefined" (click.*)="onStopEmptyClick($event)" [innerHtml]="stopEmptyTest"></div>
+    <button id="stopEmptyTest" (click.s)="undefined" (click.*)="onStopEmptyClick($event)" [innerHtml]="stopEmptyTest"></button>
 </div>
+
+<button id="throttleTest" (click.d|th[1000,1])="onThrottleClick($event)" [innerHtml]="throttleTest"></button>
+<br>
+<button id="debounceTest" (click.d|db[1000,1])="onDebounceClick($event)" [innerHtml]="debounceTest"></button>
