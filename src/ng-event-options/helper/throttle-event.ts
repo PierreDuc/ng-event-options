@@ -1,18 +1,13 @@
-export const throttleEvent = (callback: EventListener, time?: number, immediate: 0 | 1 = 0): EventListener => {
-  let timeout: number | NodeJS.Timer | undefined;
-  time = Math.max(time || 0, 0);
+export const throttleEvent = (callback: EventListener, time: number = 50, immediate: 0 | 1 = 0): EventListener => {
+  let timeout: number | NodeJS.Timer;
 
   return (event: Event): void => {
-    const callNow: boolean = !!immediate && !timeout;
-
-    if (!timeout || immediate) {
-      timeout = setTimeout(() => {
-        callback(event);
-        timeout = immediate ? setTimeout(() => timeout = 0, time) : 0;
-      }, time);
-      if (callNow) {
+    if (!timeout) {
+      if (immediate) {
         callback(event);
       }
+
+      timeout = setTimeout(() => !(timeout = 0) && !immediate ? callback(event) : void 0, time);
     }
   };
 };

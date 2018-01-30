@@ -28,10 +28,16 @@ export class AppComponent {
   public stopTest: number = -1;
 
   // expect "true"
-  public throttleTest: string = 'throttleTest';
+  public throttleWaitTest: string = 'throttleWaitTest';
 
   // expect "true"
-  public debounceTest: string = 'debounceTest';
+  public debounceWaitTest: string = 'debounceWaitTest';
+
+  // expect "true"
+  public throttleImmediateTest: string = 'throttleImmediateTest';
+
+  // expect "true"
+  public debounceImmediateTest: string = 'debounceImmediateTest';
 
   private capturePhase: boolean;
 
@@ -97,11 +103,19 @@ export class AppComponent {
     this.stopEmptyTest = 'parent';
   }
 
-  onThrottleClick(event: MouseEvent): void {
+  onThrottleWaitClick(event: MouseEvent): void {
     // console.log(event);
   }
 
-  onDebounceClick(event: MouseEvent): void {
+  onDebounceWaitClick(event: MouseEvent): void {
+    // console.log(event);
+  }
+
+  onThrottleImmediateClick(event: MouseEvent): void {
+    // console.log(event);
+  }
+
+  onDebounceImmediateClick(event: MouseEvent): void {
     // console.log(event);
   }
 }

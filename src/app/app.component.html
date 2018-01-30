@@ -15,9 +15,14 @@
 </div>
 
 <div (click.*)="onStopParentEmptyClick($event)">
-    <button id="stopEmptyTest" (click.s)="undefined" (click.*)="onStopEmptyClick($event)" [innerHtml]="stopEmptyTest"></button>
+    <button id="stopEmptyTest" (click.s)="false" (click.*)="onStopEmptyClick($event)" [innerHtml]="stopEmptyTest"></button>
 </div>
 
-<button id="throttleTest" (click.d|th[1000,1])="onThrottleClick($event)" [innerHtml]="throttleTest"></button>
+<button id="throttleWaitTest" (click.*|th[50,0])="onThrottleWaitClick($event)" [innerHtml]="throttleWaitTest"></button>
 <br>
-<button id="debounceTest" (click.d|db[1000,1])="onDebounceClick($event)" [innerHtml]="debounceTest"></button>
+<button id="debounceWaitTest" (click.*|db[50,0])="onDebounceWaitClick($event)" [innerHtml]="debounceWaitTest"></button>
+<br>
+<button id="throttleImmediateTest" (click.*|th[50,1])="onThrottleImmediateClick($event)" [innerHtml]="throttleImmediateTest"></button>
+<br>
+<button id="debounceImmediateTest" (click.*|db[50,1])="onDebounceImmediateClick($event)" [innerHtml]="debounceImmediateTest"></button>
+<br>

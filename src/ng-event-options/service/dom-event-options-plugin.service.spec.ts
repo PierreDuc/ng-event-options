@@ -1,12 +1,13 @@
-import {NgZone} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
+import { NgZone } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
-import {DomEventOptionsPlugin} from './dom-event-options-plugin.service';
+import { DomEventOptionsPlugin } from './dom-event-options-plugin.service';
 
-import {ErrorMsg} from '../enum/error-msg.enum';
-import {GlobalEventTarget} from '../enum/global-event-target.enum';
-import {OptionSymbol} from '../enum/option-symbol.enum';
-import {NativeEventOption} from '../enum/native-event-option.enum';
+import { ErrorMsg } from '../enum/error-msg.enum';
+import { GlobalEventTarget } from '../enum/global-event-target.enum';
+import { OptionSymbol } from '../enum/option-symbol.enum';
+import { NativeEventOption } from '../enum/native-event-option.enum';
+import { OperatorSymbol } from '../enum/operator-symbol.enum';
 
 let domEventOptionsPlugin: DomEventOptionsPlugin;
 let el: HTMLDivElement;
@@ -25,14 +26,14 @@ describe('Dom event options plugin', () => {
     domEventOptionsPlugin.addGlobalEventListener(target, `click.${options}`, callback);
 
   beforeEach(() => {
-    TestBed.configureTestingModule({providers: [DomEventOptionsPlugin]});
+    TestBed.configureTestingModule({ providers: [ DomEventOptionsPlugin ] });
     domEventOptionsPlugin = TestBed.get(DomEventOptionsPlugin);
     ngZone = TestBed.get(NgZone);
   });
 
   it('should have tested for browser supported', async () => {
     await expect(domEventOptionsPlugin).toBeDefined();
-    await expect(domEventOptionsPlugin['nativeEventObjectSupported']).toBeDefined();
+    await expect(domEventOptionsPlugin[ 'nativeEventObjectSupported' ]).toBeDefined();
   });
 
   it('removeEventListener should be called on the element', async () => {
@@ -45,14 +46,14 @@ describe('Dom event options plugin', () => {
   it('should reuse AddEventListenerObjects for native options regardless of the order of options', async () => {
     el = document.createElement('div');
 
-    (domEventOptionsPlugin as any)['nativeOptionsObjects'] = {};
+    (domEventOptionsPlugin as any)[ 'nativeOptionsObjects' ] = {};
 
     addEvent(OptionSymbol.Passive + OptionSymbol.Capture);
     addEvent(OptionSymbol.Capture + OptionSymbol.Passive);
     addEvent(OptionSymbol.Capture + OptionSymbol.NoZone + OptionSymbol.Passive);
     addEvent(OptionSymbol.Passive + OptionSymbol.NoZone);
 
-    await expect(Object.keys(domEventOptionsPlugin['nativeOptionsObjects']).length).toEqual(2);
+    await expect(Object.keys(domEventOptionsPlugin[ 'nativeOptionsObjects' ]).length).toEqual(2);
   });
 
   describe('AddEventListener', () => {
@@ -84,7 +85,7 @@ describe('Dom event options plugin', () => {
 
     it('addGlobalEventListener throw on unknown element name', async () => {
       const element: string = 'html';
-      const replace: string[] = [element, `click.${OptionSymbol.ForceSymbol}`];
+      const replace: string[] = [ element, `click.${OptionSymbol.ForceSymbol}` ];
       const error: string = ErrorMsg.UnsupportedEventTarget.replace(/\|~/g, () => replace.shift() as string);
 
       await expect(() => addGlobalEvent(element as any, OptionSymbol.ForceSymbol)).toThrowError(error);
@@ -116,7 +117,7 @@ describe('Dom event options plugin', () => {
 
     beforeEach(() => {
       el = document.createElement('div');
-      listener = {listener: noop};
+      listener = { listener: noop };
       spyOn(listener, 'listener');
     });
 
@@ -137,11 +138,11 @@ describe('Dom event options plugin', () => {
     });
 
     it('should call the callback only once even when `Once` is not supported', async () => {
-      const onceSupported: boolean = domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once];
-      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once] = false;
+      const onceSupported: boolean = domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ];
+      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ] = false;
       performClickEvent(OptionSymbol.Once);
       await expect(listener.listener).toHaveBeenCalledTimes(1);
-      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once] = onceSupported;
+      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ] = onceSupported;
     });
   });
 
@@ -268,8 +269,8 @@ describe('Dom event options plugin', () => {
     });
 
     it('should create an event triggered in the capture phase when there is no native event object support', async () => {
-      const nativeSupported: boolean = domEventOptionsPlugin['nativeEventObjectSupported'] as boolean;
-      domEventOptionsPlugin['nativeEventObjectSupported'] = false;
+      const nativeSupported: boolean = domEventOptionsPlugin[ 'nativeEventObjectSupported' ] as boolean;
+      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = false;
 
       const result: boolean = await new Promise<boolean>(resolve => {
         addEvent(OptionSymbol.Capture, parent, () => inCapture = !childVisited);
@@ -279,7 +280,7 @@ describe('Dom event options plugin', () => {
       });
 
       await expect(result).toEqual(true);
-      domEventOptionsPlugin['nativeEventObjectSupported'] = nativeSupported;
+      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = nativeSupported;
     });
   });
 
@@ -299,10 +300,10 @@ describe('Dom event options plugin', () => {
     });
 
     it('should not create a passive event when passive is not supported', async () => {
-      const nativeEventObjectSupported: boolean = domEventOptionsPlugin['nativeEventObjectSupported'] as boolean;
-      const passiveSupported: boolean = domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive];
-      domEventOptionsPlugin['nativeEventObjectSupported'] = false;
-      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive] = false;
+      const nativeEventObjectSupported: boolean = domEventOptionsPlugin[ 'nativeEventObjectSupported' ] as boolean;
+      const passiveSupported: boolean = domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ];
+      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = false;
+      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ] = false;
 
       el = document.createElement('div');
 
@@ -315,8 +316,8 @@ describe('Dom event options plugin', () => {
       });
 
       await expect(result).toEqual(true);
-      domEventOptionsPlugin['nativeEventObjectSupported'] = nativeEventObjectSupported;
-      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive] = passiveSupported;
+      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = nativeEventObjectSupported;
+      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ] = passiveSupported;
     });
   });
 
@@ -351,6 +352,106 @@ describe('Dom event options plugin', () => {
       callback2();
 
       (domEventOptionsPlugin as any).platformId = platformId;
+    });
+  });
+
+  describe('Check `Throttle` operator', () => {
+    let listener: { listener: EventListener };
+
+    const time: number = 50;
+
+    beforeEach(() => {
+      el = document.createElement('div');
+      listener = { listener: noop };
+      spyOn(listener, 'listener');
+    });
+
+    const checkThrottle = async (immediate: 0 | 1 = 0) => {
+      for (let i = 0; i < time; i++) {
+        el.click();
+
+        if (i === 0) {
+          await expect(listener.listener).toHaveBeenCalledTimes(immediate);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, time / 10));
+      }
+
+      await new Promise(resolve => setTimeout(resolve, time));
+      await expect(listener.listener).toHaveBeenCalledTimes(time / 10 + 1);
+    };
+
+    it('should throttle the event', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time},0]`, el, listener.listener);
+      await checkThrottle(0);
+    });
+
+    it('should throttle the event and call immediate', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time},1]`, el, listener.listener);
+      await checkThrottle(1);
+    });
+
+    it('should throttle with no time and no immediate', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[]`, el, listener.listener);
+      await checkThrottle(0);
+    });
+
+    it('should throttle with just time', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time}]`, el, listener.listener);
+      await checkThrottle(0);
+    });
+
+    it('should throttle with unknown operator', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time}]foo[]`, el, listener.listener);
+      await checkThrottle(0);
+    });
+  });
+
+  describe('Check `Debounce` operator', () => {
+
+    let listener: { listener: EventListener };
+
+    const time: number = 50;
+
+    beforeEach(() => {
+      el = document.createElement('div');
+      listener = { listener: noop };
+      spyOn(listener, 'listener');
+    });
+
+    const checkDebounce = async (immediate: 0 | 1 = 0) => {
+      for (let i = 0; i < time; i++) {
+        el.click();
+
+        if (i === 0) {
+          await expect(listener.listener).toHaveBeenCalledTimes(immediate);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, time / 10));
+      }
+
+      await new Promise(resolve => setTimeout(resolve, time));
+      await expect(listener.listener).toHaveBeenCalledTimes(1);
+    };
+
+    it('should debounce the event', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time},0]`, el, listener.listener);
+      await checkDebounce(0);
+    });
+
+    it('should debounce the event and call immediate', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time},1]`, el, listener.listener);
+      await checkDebounce(1);
+    });
+
+    it('should debounce with no time and no immediate', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[]`, el, listener.listener);
+      await checkDebounce(0);
+    });
+
+    it('should debounce with just time', async () => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time}]`, el, listener.listener);
+      await checkDebounce(0);
     });
   });
 });

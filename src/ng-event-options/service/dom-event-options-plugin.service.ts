@@ -1,17 +1,17 @@
-import {Inject, Injectable, NgZone, PLATFORM_ID} from '@angular/core';
-import {DOCUMENT, isPlatformBrowser} from '@angular/common';
+import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
-import {ErrorMsg} from '../enum/error-msg.enum';
-import {EventOption} from '../enum/event-option.enum';
-import {GlobalEventTarget} from '../enum/global-event-target.enum';
-import {NativeEventOption} from '../enum/native-event-option.enum';
-import {OptionSymbol} from '../enum/option-symbol.enum';
+import { ErrorMsg } from '../enum/error-msg.enum';
+import { EventOption } from '../enum/event-option.enum';
+import { GlobalEventTarget } from '../enum/global-event-target.enum';
+import { NativeEventOption } from '../enum/native-event-option.enum';
+import { OptionSymbol } from '../enum/option-symbol.enum';
 
-import {EventOptionsObject} from '../type/event-options-object';
-import {getBitValue} from '../helper/get-bit-value';
-import {OperatorSymbol} from '../enum/operator-symbol.enum';
-import {throttleEvent} from '../helper/throttle-event';
-import {debounceEvent} from '../helper/debounce-event';
+import { EventOptionsObject } from '../type/event-options-object';
+import { getBitValue } from '../helper/get-bit-value';
+import { OperatorSymbol } from '../enum/operator-symbol.enum';
+import { throttleEvent } from '../helper/throttle-event';
+import { debounceEvent } from '../helper/debounce-event';
 
 @Injectable()
 // EventManagerPlugin is not yet part of the public API of Angular, once it is I can remove the `addGlobalEventListener`
@@ -27,7 +27,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     passive: false
   };
 
-  private readonly keyEvents: [keyof DocumentEventMap] = ['keydown', 'keypress', 'keyup'];
+  private readonly keyEvents: [ keyof DocumentEventMap ] = [ 'keydown', 'keypress', 'keyup' ];
 
   private readonly blockSeparator: string = '|';
 
@@ -47,11 +47,15 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   }
 
   addEventListener(element: HTMLElement, eventName: string, listener: EventListener): () => void {
-    const {type, options, operators} = this.getTypeOptions(eventName);
+    const { type, options, operators } = this.getTypeOptions(eventName);
     const inBrowser: number = options.indexOf(OptionSymbol.InBrowser) > -1 ? EventOption.InBrowser : 0;
 
     if (inBrowser && !isPlatformBrowser(this.platformId)) {
       return (): void => void 0;
+    }
+
+    if (typeof listener !== 'function') {
+      listener = () => void 0;
     }
 
     const passive: number = options.indexOf(OptionSymbol.Passive) > -1 ? EventOption.Passive : 0;
@@ -68,8 +72,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
     const operatorSettings: Partial<{ [OS in OperatorSymbol]: string[]}> = this.parseOperators(operators);
 
-    const debounceParams: string[] | undefined = operatorSettings[OperatorSymbol.Debounce];
-    const throttleParams: string[] | undefined = operatorSettings[OperatorSymbol.Throttle];
+    const debounceParams: string[] | undefined = operatorSettings[ OperatorSymbol.Debounce ];
+    const throttleParams: string[] | undefined = operatorSettings[ OperatorSymbol.Throttle ];
 
     const bitVal: number = getBitValue(capture, once, passive);
     const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal);
@@ -83,8 +87,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       }
     };
 
-    let debounceCallback: (event: Event) => void;
-    let throttleCallback: (event: Event) => void;
+    let debounceCallback: EventListener;
+    let throttleCallback: EventListener;
 
     if (debounceParams) {
       debounceCallback = debounceEvent(callback, ...debounceParams.map(p => parseInt(p, 10)));
@@ -104,17 +108,15 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         event.preventDefault();
       }
 
-      if (once && !this.nativeOptionsSupported[NativeEventOption.Once]) {
+      if (once && !this.nativeOptionsSupported[ NativeEventOption.Once ]) {
         element.removeEventListener(type, intermediateListener, eventOptionsObj);
       }
 
-      if (listener) {
-        if (debounceCallback) {
-          return debounceCallback(event);
-        }
-        if (throttleCallback) {
-          return throttleCallback(event);
-        }
+      if (debounceCallback) {
+        debounceCallback(event);
+      } else if (throttleCallback) {
+        throttleCallback(event);
+      } else {
         callback(event);
       }
     };
@@ -146,7 +148,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     } else if (element === GlobalEventTarget.Body && this.doc) {
       target = this.doc.body;
     } else {
-      const replace: string[] = [element, eventName];
+      const replace: string[] = [ element, eventName ];
       throw new Error(ErrorMsg.UnsupportedEventTarget.replace(/\|~/g, () => replace.shift() as string));
     }
 
@@ -154,7 +156,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   }
 
   supports(eventName: string): boolean {
-    const {type, options} = this.getTypeOptions(eventName);
+    const { type, options } = this.getTypeOptions(eventName);
 
     if (!type) {
       return false;
@@ -174,10 +176,10 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   private checkSupport(): void {
     const supportObj: object = new Object(null);
 
-    Object.keys(NativeEventOption).map(optionKey => NativeEventOption[optionKey as any]).forEach(nativeOption =>
+    Object.keys(NativeEventOption).map(optionKey => NativeEventOption[ optionKey as any ]).forEach(nativeOption =>
       Object.defineProperty(supportObj, nativeOption, {
         get: () => {
-          this.nativeOptionsSupported[nativeOption as NativeEventOption] = true;
+          this.nativeOptionsSupported[ nativeOption as NativeEventOption ] = true;
         }
       })
     );
@@ -187,7 +189,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     } catch {
     }
 
-    this.nativeEventObjectSupported = this.nativeOptionsSupported[NativeEventOption.Capture];
+    this.nativeEventObjectSupported = this.nativeOptionsSupported[ NativeEventOption.Capture ];
   }
 
   private parseOperators(operatorsStr: string): Partial<{ [OS in OperatorSymbol]: string[]}> {
@@ -197,9 +199,9 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       operatorsStr.split(/],?/).forEach(operatorStr => {
         const parts: string[] = operatorStr.split('[');
         if (parts.length === 2) {
-          const operator: OperatorSymbol = parts[0] as OperatorSymbol;
+          const operator: OperatorSymbol = parts[ 0 ] as OperatorSymbol;
           if (operator && this.operatorSymbols.indexOf(operator) > -1) {
-            operators[operator] = parts[1].split(',').filter(p => p);
+            operators[ operator ] = parts[ 1 ].split(',').filter(p => p);
           }
         }
       });
@@ -216,7 +218,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     const eventOptions: number = (options & EventOption.Capture) + (options & EventOption.Passive) + (options & EventOption.Once);
 
     if (eventOptions in this.nativeOptionsObjects) {
-      return this.nativeOptionsObjects[eventOptions];
+      return this.nativeOptionsObjects[ eventOptions ];
     }
 
     const optionsObj: EventOptionsObject = {
@@ -225,19 +227,19 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       once: !!(eventOptions & EventOption.Once)
     };
 
-    this.nativeOptionsObjects[eventOptions] = optionsObj;
+    this.nativeOptionsObjects[ eventOptions ] = optionsObj;
 
     return optionsObj;
   }
 
   private getTypeOptions(eventName: string): { type: string, options: string, operators: string } {
-    let [type, options, operators]: string[] = eventName.split(this.optionSeparator);
+    let [ type, options, operators ]: string[] = eventName.split(this.optionSeparator);
 
     if (!options || !type) {
-      return {type: '', options: '', operators: ''};
+      return { type: '', options: '', operators: '' };
     }
 
-    [options, operators] = options.split(this.blockSeparator);
+    [ options, operators ] = options.split(this.blockSeparator);
 
     if (!operators) {
       operators = '';
@@ -247,18 +249,18 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     options = options.trim();
     operators = operators.trim();
 
-    return {type, options, operators};
+    return { type, options, operators };
   }
 
   private setSymbols(): void {
     this.optionSymbols.length = 0;
     Object.keys(OptionSymbol).forEach(
-      optionKey => this.optionSymbols.push(OptionSymbol[optionKey as any] as OptionSymbol)
+      optionKey => this.optionSymbols.push(OptionSymbol[ optionKey as any ] as OptionSymbol)
     );
 
     this.operatorSymbols.length = 0;
     Object.keys(OperatorSymbol).forEach(
-      operatorSymbol => this.operatorSymbols.push(OperatorSymbol[operatorSymbol as any] as OperatorSymbol)
+      operatorSymbol => this.operatorSymbols.push(OperatorSymbol[ operatorSymbol as any ] as OperatorSymbol)
     );
   }
 }
