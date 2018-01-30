@@ -359,11 +359,14 @@ describe('Dom event options plugin', () => {
     let listener: { listener: EventListener };
 
     const time: number = 50;
+    let callCount: number = 0;
 
     beforeEach(() => {
       el = document.createElement('div');
-      listener = { listener: noop };
-      spyOn(listener, 'listener');
+      callCount = 0;
+      listener = { listener: () =>  {
+        callCount = callCount + 1;
+      }};
     });
 
     const checkThrottle = async (immediate: 0 | 1 = 0) => {
@@ -371,14 +374,15 @@ describe('Dom event options plugin', () => {
         el.click();
 
         if (i === 0) {
-          await expect(listener.listener).toHaveBeenCalledTimes(immediate);
+          await expect(callCount).toEqual(immediate);
         }
 
         await new Promise(resolve => setTimeout(resolve, time / 10));
       }
 
       await new Promise(resolve => setTimeout(resolve, time));
-      await expect(listener.listener).toHaveBeenCalledTimes(time / 10 + 1);
+      await expect(callCount).toBeLessThanOrEqual(time / 10 + 1);
+      await expect(callCount).toBeGreaterThanOrEqual(time / 10 - 1);
     };
 
     it('should throttle the event', async () => {
