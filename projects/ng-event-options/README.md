@@ -8,14 +8,14 @@ Extended event binding for Angular
 
 ## Features
 
-* Native event binding support for `passive`, `capture` and `once` event options
-* Additional event options for `stopImmediatePropagation`, `stopPropagation` and `preventDefault`
-* Event operator support for `throttle` and `debounce`
-* Angular event options for binding outside `NgZone` and only bind when inside `platformBrowser`
-* The module is only `2KB` gzipped, so no worries about that
+- Native event binding support for `passive`, `capture` and `once` event options
+- Additional event options for `stopImmediatePropagation`, `stopPropagation` and `preventDefault`
+- Event operator support for `throttle` and `debounce`
+- Angular event options for binding outside `NgZone` and only bind when inside `platformBrowser`
+- The module is only `2KB` gzipped, so no worries about that
 
 Increase the speed of your application by using the `passive` and `NgZone` options. Decrease your code size by
-utilising the pre-defined additional options. 
+utilising the pre-defined additional options.
 
 ## Wiki
 
@@ -39,11 +39,11 @@ Look [here](https://github.com/PierreDuc/ng-event-options/wiki/Wiki#examples) fo
 
 ## Limitations
 
-* Keymap event is not (yet) supported `(keydown.enter.pcon)`
+- Keymap event is not (yet) supported `(keydown.enter.pcon)`
 
 ## Author
 
-* **Poul Kruijt** - *Initial work* - [PierreDuc](https://github.com/PierreDuc/)
+- **Poul Kruijt** - _Initial work_ - [PierreDuc](https://github.com/PierreDuc/)
 
 ## License
 
@@ -51,6 +51,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* [angular](https://github.com/angular/angular)
-* [angular-cli](https://github.com/angular/angular-cli)
-* [ng-packagr](https://github.com/dherges/ng-packagr)
+- [angular](https://github.com/angular/angular)
+- [angular-cli](https://github.com/angular/angular-cli)
+- [ng-packagr](https://github.com/dherges/ng-packagr)

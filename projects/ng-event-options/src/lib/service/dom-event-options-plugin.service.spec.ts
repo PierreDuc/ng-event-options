@@ -1,5 +1,5 @@
 import { NgZone } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { DomEventOptionsPlugin } from './dom-event-options-plugin.service';
 
@@ -15,25 +15,38 @@ let ngZone: NgZone;
 
 describe('Dom event options plugin', () => {
   const noop: EventListener = () => void 0;
-  const addEvent = (options: string = '*', element: HTMLElement = el, callback: EventListener = noop, useZone: boolean = true) => {
+  const addEvent = (
+    options: string = '*',
+    element: HTMLElement = el,
+    callback: EventListener = noop,
+    useZone: boolean = true
+  ) => {
     if (useZone) {
-      return ngZone.run(() => domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback));
+      return ngZone.run(() =>
+        domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback)
+      );
     } else {
-      return ngZone.runOutsideAngular(() => domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback));
+      return ngZone.runOutsideAngular(() =>
+        domEventOptionsPlugin.addEventListener(element, `click.${options}`, callback)
+      );
     }
   };
-  const addGlobalEvent = (target: GlobalEventTarget, options: string = '*', callback: EventListener = noop): () => void =>
+  const addGlobalEvent = (
+    target: GlobalEventTarget,
+    options: string = '*',
+    callback: EventListener = noop
+  ): (() => void) =>
     domEventOptionsPlugin.addGlobalEventListener(target, `click.${options}`, callback);
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [ DomEventOptionsPlugin ] });
+    TestBed.configureTestingModule({ providers: [DomEventOptionsPlugin] });
     domEventOptionsPlugin = TestBed.get(DomEventOptionsPlugin);
     ngZone = TestBed.get(NgZone);
   });
 
   it('should have tested for browser supported', async () => {
     await expect(domEventOptionsPlugin).toBeDefined();
-    await expect(domEventOptionsPlugin[ 'nativeEventObjectSupported' ]).toBeDefined();
+    await expect(domEventOptionsPlugin['nativeEventObjectSupported']).toBeDefined();
   });
 
   it('removeEventListener should be called on the element', async () => {
@@ -46,14 +59,14 @@ describe('Dom event options plugin', () => {
   it('should reuse AddEventListenerObjects for native options regardless of the order of options', async () => {
     el = document.createElement('div');
 
-    (domEventOptionsPlugin as any)[ 'nativeOptionsObjects' ] = {};
+    (domEventOptionsPlugin as any)['nativeOptionsObjects'] = {};
 
     addEvent(OptionSymbol.Passive + OptionSymbol.Capture);
     addEvent(OptionSymbol.Capture + OptionSymbol.Passive);
     addEvent(OptionSymbol.Capture + OptionSymbol.NoZone + OptionSymbol.Passive);
     addEvent(OptionSymbol.Passive + OptionSymbol.NoZone);
 
-    await expect(Object.keys(domEventOptionsPlugin[ 'nativeOptionsObjects' ]).length).toEqual(2);
+    await expect(Object.keys(domEventOptionsPlugin['nativeOptionsObjects']).length).toEqual(2);
   });
 
   describe('AddEventListener', () => {
@@ -71,8 +84,9 @@ describe('Dom event options plugin', () => {
 
     it('should throw an error on passive, prevent default', async () => {
       el = document.createElement('div');
-      await expect(() => addEvent(OptionSymbol.Passive + OptionSymbol.PreventDefault))
-        .toThrowError(ErrorMsg.PassivePreventDefault);
+      await expect(() => addEvent(OptionSymbol.Passive + OptionSymbol.PreventDefault)).toThrowError(
+        ErrorMsg.PassivePreventDefault
+      );
     });
   });
 
@@ -85,31 +99,33 @@ describe('Dom event options plugin', () => {
 
     it('addGlobalEventListener throw on unknown element name', async () => {
       const element: string = 'html';
-      const replace: string[] = [ element, `click.${OptionSymbol.ForceSymbol}` ];
-      const error: string = ErrorMsg.UnsupportedEventTarget.replace(/\|~/g, () => replace.shift() as string);
+      const replace: string[] = [element, `click.${OptionSymbol.ForceSymbol}`];
+      const error: string = ErrorMsg.UnsupportedEventTarget.replace(
+        /\|~/g,
+        () => replace.shift() as string
+      );
 
-      await expect(() => addGlobalEvent(element as any, OptionSymbol.ForceSymbol)).toThrowError(error);
+      await expect(() => addGlobalEvent(element as any, OptionSymbol.ForceSymbol)).toThrowError(
+        error
+      );
     });
   });
 
   describe('Support', () => {
-    it('should support only events with a dot and with proper settings', async () => {
-      await Promise.all([
-        expect(domEventOptionsPlugin.supports('test')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('click#pcon')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('test.')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('.')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('click.pcon')).toEqual(true),
-        expect(domEventOptionsPlugin.supports('mousemove.pp')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('mousedown.p')).toEqual(true),
-        expect(domEventOptionsPlugin.supports('submit.pconsdb')).toEqual(true),
-        expect(domEventOptionsPlugin.supports('keydown.p')).toEqual(false),
-        expect(domEventOptionsPlugin.supports('keydown.p*')).toEqual(true),
-        expect(domEventOptionsPlugin.supports('foo.pc')).toEqual(true),
-        expect(domEventOptionsPlugin.supports(' click. pc ')).toEqual(true)
-      ]);
+    it('should support only events with a dot and with proper settings', () => {
+      expect(domEventOptionsPlugin.supports('test')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('click#pcon')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('test.')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('.')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('click.pcon')).toEqual(true);
+      expect(domEventOptionsPlugin.supports('mousemove.pp')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('mousedown.p')).toEqual(true);
+      expect(domEventOptionsPlugin.supports('submit.pconsdb')).toEqual(true);
+      expect(domEventOptionsPlugin.supports('keydown.p')).toEqual(false);
+      expect(domEventOptionsPlugin.supports('keydown.p*')).toEqual(true);
+      expect(domEventOptionsPlugin.supports('foo.pc')).toEqual(true);
+      expect(domEventOptionsPlugin.supports(' click. pc ')).toEqual(true);
     });
-
   });
 
   describe('Check `Once` option', () => {
@@ -127,69 +143,66 @@ describe('Dom event options plugin', () => {
       el.click();
     };
 
-    it('should call the callback twice when triggered twice', async () => {
+    it('should call the callback twice when triggered twice', () => {
       performClickEvent();
-      await expect(listener.listener).toHaveBeenCalledTimes(2);
+      expect(listener.listener).toHaveBeenCalledTimes(2);
     });
 
-    it('should call the callback only once when the `Once` option is used', async () => {
+    it('should call the callback only once when the `Once` option is used', () => {
       performClickEvent(OptionSymbol.Once);
-      await expect(listener.listener).toHaveBeenCalledTimes(1);
+      expect(listener.listener).toHaveBeenCalledTimes(1);
     });
 
-    it('should call the callback only once even when `Once` is not supported', async () => {
-      const onceSupported: boolean = domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ];
-      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ] = false;
+    it('should call the callback only once even when `Once` is not supported', () => {
+      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Once] = false;
       performClickEvent(OptionSymbol.Once);
-      await expect(listener.listener).toHaveBeenCalledTimes(1);
-      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Once ] = onceSupported;
+      expect(listener.listener).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Check `NoZone` option', () => {
-    it('should be outside the zone when the `NoZone` option is used', async () => {
+    it('should be outside the zone when the `NoZone` option is used', () => {
       el = document.createElement('div');
-      const result: boolean = await new Promise<boolean>((resolve) => {
-        addEvent(OptionSymbol.NoZone, el, () => resolve(NgZone.isInAngularZone()));
-        el.click();
-      });
+      let result = true;
 
-      await expect(result).toEqual(false);
+      addEvent(OptionSymbol.NoZone, el, () => result = NgZone.isInAngularZone());
+      el.click();
+
+      expect(result).toEqual(false);
     });
 
-    it('should not call runOutsideAngular when already outside NgZone', async () => {
+    it('should not call runOutsideAngular when already outside NgZone', () => {
       spyOn(ngZone, 'runOutsideAngular');
       spyOn(ngZone, 'run');
       el = document.createElement('div');
       addEvent(OptionSymbol.NoZone, el, noop, false);
       el.click();
 
-      await expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(1);
-      await expect(ngZone.run).toHaveBeenCalledTimes(0);
+      expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(1);
+      expect(ngZone.run).toHaveBeenCalledTimes(0);
     });
 
-    it('should call runOutsideAngular and run when inside NgZone', async () => {
+    it('should call runOutsideAngular and run when inside NgZone', () => {
       spyOn(ngZone, 'runOutsideAngular');
       spyOn(ngZone, 'run');
       el = document.createElement('div');
       addEvent();
       el.click();
 
-      await expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(0);
-      await expect(ngZone.run).toHaveBeenCalledTimes(1);
+      expect(ngZone.runOutsideAngular).toHaveBeenCalledTimes(0);
+      expect(ngZone.run).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Check `PreventDefault` option', () => {
-    it('should prevent default behaviour when the `PreventDefault` option is used', async () => {
+    it('should prevent default behaviour when the `PreventDefault` option is used', () => {
       el = document.createElement('div');
+      let result = false;
 
-      const result: boolean = await new Promise<boolean>(resolve => {
-        addEvent(OptionSymbol.PreventDefault, el, event => resolve(event.defaultPrevented));
-        el.click();
-      });
+      addEvent(OptionSymbol.PreventDefault, el, event => result = event.defaultPrevented);
+      el.click();
 
-      await expect(result).toEqual(true);
+      expect(result).toEqual(true);
     });
   });
 
@@ -199,26 +212,24 @@ describe('Dom event options plugin', () => {
     beforeEach(() => {
       el = document.createElement('div');
       listeners = {
-        listener1: () => {
-        },
-        listener2: () => {
-        }
+        listener1: () => {},
+        listener2: () => {}
       };
       spyOn(listeners, 'listener1');
       spyOn(listeners, 'listener2');
     });
 
-    it('should stop the immediate propagation of an event', async () => {
+    it('should stop the immediate propagation of an event', () => {
       addEvent(OptionSymbol.Stop, el, listeners.listener1);
       addEvent(OptionSymbol.ForceSymbol, el, listeners.listener2);
 
       el.click();
 
-      await expect(listeners.listener1).toHaveBeenCalledTimes(1);
-      await expect(listeners.listener2).toHaveBeenCalledTimes(0);
+      expect(listeners.listener1).toHaveBeenCalledTimes(1);
+      expect(listeners.listener2).toHaveBeenCalledTimes(0);
     });
 
-    it('should stop the propagation to a parent', async () => {
+    it('should stop the propagation to a parent', () => {
       const parent: HTMLDivElement = document.createElement('div');
       parent.appendChild(el);
 
@@ -228,18 +239,18 @@ describe('Dom event options plugin', () => {
 
       el.click();
 
-      await expect(listeners.listener1).toHaveBeenCalledTimes(1);
-      await expect(listeners.listener2).toHaveBeenCalledTimes(0);
+      expect(listeners.listener1).toHaveBeenCalledTimes(1);
+      expect(listeners.listener2).toHaveBeenCalledTimes(0);
     });
 
-    it('should work without actually having a listener', async () => {
+    it('should work without actually having a listener', () => {
       addEvent(OptionSymbol.Stop, el, null as any);
       addEvent(OptionSymbol.ForceSymbol, el, listeners.listener2);
 
       el.click();
 
-      await expect(listeners.listener1).toHaveBeenCalledTimes(0);
-      await expect(listeners.listener2).toHaveBeenCalledTimes(0);
+      expect(listeners.listener1).toHaveBeenCalledTimes(0);
+      expect(listeners.listener2).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -258,66 +269,61 @@ describe('Dom event options plugin', () => {
     });
 
     it('should create an event triggered in the capture phase', async () => {
-      const result: boolean = await new Promise<boolean>(resolve => {
-        addEvent(OptionSymbol.Capture, parent, () => inCapture = !childVisited);
-        addEvent(OptionSymbol.ForceSymbol, parent, () => resolve(childVisited && inCapture));
-        addEvent(OptionSymbol.ForceSymbol, el, () => childVisited = true);
-        el.click();
-      });
+      let result = false;
+
+      addEvent(OptionSymbol.Capture, parent, () => (inCapture = !childVisited));
+      addEvent(OptionSymbol.ForceSymbol, parent, () => result = (childVisited && inCapture));
+      addEvent(OptionSymbol.ForceSymbol, el, () => (childVisited = true));
+      el.click();
 
       await expect(result).toEqual(true);
     });
 
     it('should create an event triggered in the capture phase when there is no native event object support', async () => {
-      const nativeSupported: boolean = domEventOptionsPlugin[ 'nativeEventObjectSupported' ] as boolean;
-      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = false;
+      domEventOptionsPlugin['nativeEventObjectSupported'] = false;
 
-      const result: boolean = await new Promise<boolean>(resolve => {
-        addEvent(OptionSymbol.Capture, parent, () => inCapture = !childVisited);
-        addEvent(OptionSymbol.ForceSymbol, parent, () => resolve(childVisited && inCapture));
-        addEvent(OptionSymbol.ForceSymbol, el, () => childVisited = true);
-        el.click();
-      });
+      let result = false;
+
+      addEvent(OptionSymbol.Capture, parent, () => (inCapture = !childVisited));
+      addEvent(OptionSymbol.ForceSymbol, parent, () => result = (childVisited && inCapture));
+      addEvent(OptionSymbol.ForceSymbol, el, () => (childVisited = true));
+      el.click();
 
       await expect(result).toEqual(true);
-      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = nativeSupported;
     });
   });
 
   describe('Check `Passive` option', () => {
-    it('should not set defaultPrevented on true when calling preventDefault on the event', async () => {
+    it('should not set defaultPrevented on true when calling preventDefault on the event', () => {
       el = document.createElement('div');
 
-      const result: boolean = await new Promise<boolean>(resolve => {
-        addEvent(OptionSymbol.Passive, el, event => {
-          event.preventDefault();
-          resolve(event.defaultPrevented);
-        });
-        el.click();
+      let result = true;
+
+      addEvent(OptionSymbol.Passive, el, event => {
+        event.preventDefault();
+        result = event.defaultPrevented;
       });
 
-      await expect(result).toEqual(false);
+      el.click();
+
+      expect(result).toEqual(false);
     });
 
-    it('should not create a passive event when passive is not supported', async () => {
-      const nativeEventObjectSupported: boolean = domEventOptionsPlugin[ 'nativeEventObjectSupported' ] as boolean;
-      const passiveSupported: boolean = domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ];
-      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = false;
-      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ] = false;
+    it('should not create a passive event when passive is not supported', () => {
+      domEventOptionsPlugin['nativeEventObjectSupported'] = false;
+      domEventOptionsPlugin['nativeOptionsSupported'][NativeEventOption.Passive] = false;
 
       el = document.createElement('div');
 
-      const result: boolean = await new Promise<boolean>(resolve => {
-        addEvent(OptionSymbol.Passive, el, event => {
-          event.preventDefault();
-          resolve(event.defaultPrevented);
-        });
-        el.click();
-      });
+      let result = false;
 
-      await expect(result).toEqual(true);
-      domEventOptionsPlugin[ 'nativeEventObjectSupported' ] = nativeEventObjectSupported;
-      domEventOptionsPlugin[ 'nativeOptionsSupported' ][ NativeEventOption.Passive ] = passiveSupported;
+      addEvent(OptionSymbol.Passive, el, event => {
+        event.preventDefault();
+        result = event.defaultPrevented;
+      });
+      el.click();
+
+      expect(result).toEqual(true);
     });
   });
 
@@ -326,32 +332,30 @@ describe('Dom event options plugin', () => {
 
     beforeEach(() => {
       el = document.createElement('div');
-      listener = {listener: noop};
+      listener = { listener: noop };
       spyOn(listener, 'listener');
     });
 
-    it('should call the listener when inside a browser environment', async () => {
+    it('should call the listener when inside a browser environment', () => {
       addEvent(OptionSymbol.InBrowser, el, listener.listener);
       el.click();
-      await expect(listener.listener).toHaveBeenCalledTimes(1);
+      expect(listener.listener).toHaveBeenCalledTimes(1);
     });
 
-    it('should not call the listener when inside a non browser environment', async () => {
-      const platformId: Object = domEventOptionsPlugin['platformId'];
+    it('should not call the listener when inside a non browser environment', () => {
       (domEventOptionsPlugin as any).platformId = 'non-browser';
 
       const callback1: () => void = addEvent(OptionSymbol.InBrowser, el, listener.listener);
-      const callback2: () => void = addGlobalEvent(GlobalEventTarget.Window, OptionSymbol.InBrowser, listener.listener);
+      const callback2: () => void = addGlobalEvent(
+        GlobalEventTarget.Window,
+        OptionSymbol.InBrowser,
+        listener.listener
+      );
       el.click();
 
-      await expect(typeof callback1).toEqual('function');
-      await expect(typeof callback2).toEqual('function');
-      await expect(listener.listener).toHaveBeenCalledTimes(0);
-
-      callback1();
-      callback2();
-
-      (domEventOptionsPlugin as any).platformId = platformId;
+      expect(typeof callback1).toEqual('function');
+      expect(typeof callback2).toEqual('function');
+      expect(listener.listener).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -364,55 +368,78 @@ describe('Dom event options plugin', () => {
     beforeEach(() => {
       el = document.createElement('div');
       callCount = 0;
-      listener = { listener: () =>  {
-        callCount = callCount + 1;
-      }};
+      listener = {
+        listener: () => {
+          callCount = callCount + 1;
+        }
+      };
     });
 
-    const checkThrottle = async (immediate: 0 | 1 = 0) => {
+    const checkThrottle = (immediate: 0 | 1 = 0) => {
       for (let i = 0; i < time; i++) {
         el.click();
 
         if (i === 0) {
-          await expect(callCount).toEqual(immediate);
+          expect(callCount).toEqual(immediate);
         }
 
-        await new Promise(resolve => setTimeout(resolve, time / 10));
+        tick(time / 10);
       }
 
-      await new Promise(resolve => setTimeout(resolve, time));
-      await expect(callCount).toBeLessThanOrEqual(time / 10 + 1);
-      await expect(callCount).toBeGreaterThanOrEqual(time / 10 - 1);
+      tick(time);
+
+      expect(callCount).toBeLessThanOrEqual(time / 10 + 1);
+      expect(callCount).toBeGreaterThanOrEqual(time / 10 - 1);
     };
 
-    it('should throttle the event', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time},0]`, el, listener.listener);
-      await checkThrottle(0);
-    });
+    it('should throttle the event', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}{${time},0}`,
+        el,
+        listener.listener
+      );
 
-    it('should throttle the event and call immediate', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time},1]`, el, listener.listener);
-      await checkThrottle(1);
-    });
+      checkThrottle(0);
+    }));
 
-    it('should throttle with no time and no immediate', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[]`, el, listener.listener);
-      await checkThrottle(0);
-    });
+    it('should throttle the event and call immediate', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}{${time},1}`,
+        el,
+        listener.listener
+      );
 
-    it('should throttle with just time', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time}]`, el, listener.listener);
-      await checkThrottle(0);
-    });
+      checkThrottle(1);
+    }));
 
-    it('should throttle with unknown operator', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}[${time}]foo[]`, el, listener.listener);
-      await checkThrottle(0);
-    });
+    it('should throttle with no time and no immediate', fakeAsync(() => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}{}`, el, listener.listener);
+
+      checkThrottle(0);
+    }));
+
+    it('should throttle with just time', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}{${time}}`,
+        el,
+        listener.listener
+      );
+
+      checkThrottle(0);
+    }));
+
+    it('should throttle with unknown operator', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Throttle}{${time}}foo[]`,
+        el,
+        listener.listener
+      );
+
+      checkThrottle(0);
+    }));
   });
 
   describe('Check `Debounce` operator', () => {
-
     let listener: { listener: EventListener };
 
     const time: number = 50;
@@ -423,39 +450,68 @@ describe('Dom event options plugin', () => {
       spyOn(listener, 'listener');
     });
 
-    const checkDebounce = async (immediate: 0 | 1 = 0) => {
+    const checkDebounce = (immediate: 0 | 1 = 0) => {
       for (let i = 0; i < time; i++) {
         el.click();
 
         if (i === 0) {
-          await expect(listener.listener).toHaveBeenCalledTimes(immediate);
+          expect(listener.listener).toHaveBeenCalledTimes(immediate);
         }
 
-        await new Promise(resolve => setTimeout(resolve, time / 10));
+        tick(time / 10);
       }
 
-      await new Promise(resolve => setTimeout(resolve, time));
-      await expect(listener.listener).toHaveBeenCalledTimes(1);
+      tick(time);
+
+      expect(listener.listener).toHaveBeenCalledTimes(1);
     };
 
-    it('should debounce the event', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time},0]`, el, listener.listener);
-      await checkDebounce(0);
-    });
+    it('should debounce the event', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}{${time},0}`,
+        el,
+        listener.listener
+      );
 
-    it('should debounce the event and call immediate', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time},1]`, el, listener.listener);
-      await checkDebounce(1);
-    });
+      checkDebounce(0);
+    }));
 
-    it('should debounce with no time and no immediate', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[]`, el, listener.listener);
-      await checkDebounce(0);
-    });
+    it('should debounce the event and call immediate', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}{${time},1}`,
+        el,
+        listener.listener
+      );
 
-    it('should debounce with just time', async () => {
-      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}[${time}]`, el, listener.listener);
-      await checkDebounce(0);
+      checkDebounce(1);
+    }));
+
+    it('should debounce with no time and no immediate', fakeAsync(() => {
+      addEvent(`${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}{}`, el, listener.listener);
+
+      checkDebounce(0);
+    }));
+
+    it('should debounce with just time', fakeAsync(() => {
+      addEvent(
+        `${OptionSymbol.ForceSymbol}|${OperatorSymbol.Debounce}{${time}}`,
+        el,
+        listener.listener
+      );
+
+      checkDebounce(0);
+    }));
+
+    it('should throw an error with unknown operator', () => {
+      const wrongOperator = `${OperatorSymbol.Debounce}d`;
+
+      expect(() => addEvent(
+        `${OptionSymbol.ForceSymbol}|${wrongOperator}{${time}}`,
+        el,
+        listener.listener
+      )).toThrowError(
+        ErrorMsg.UnsupportedOperator.replace(/\|~/g, wrongOperator)
+      );
     });
   });
 });

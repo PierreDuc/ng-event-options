@@ -12,7 +12,7 @@ Extended event binding for Angular
 * Additional event options for `stopImmediatePropagation`, `stopPropagation` and `preventDefault`
 * Event operator support for `throttle` and `debounce`
 * Angular event options for binding outside `NgZone` and only bind when inside `platformBrowser`
-* The module is only `2KB` gzipped, so no worries about that
+* The module is only `3KB` gzipped, so no worries about that
 
 Increase the speed of your application by using the `passive` and `NgZone` options. Decrease your code size by
 utilising the pre-defined additional options. 

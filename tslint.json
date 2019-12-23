@@ -31,6 +31,9 @@
         ]
       }
     ],
+    "no-arg": true,
+    "no-bitwise": false,
+    "no-string-literal": false,
     "no-consecutive-blank-lines": false,
     "no-console": [
       true,
@@ -42,7 +45,7 @@
     ],
     "no-empty": false,
     "no-inferrable-types": [
-      true,
+      false,
       "ignore-params"
     ],
     "no-non-null-assertion": true,

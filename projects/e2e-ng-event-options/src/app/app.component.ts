@@ -1,4 +1,4 @@
-import {Component, NgZone} from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -38,20 +38,18 @@ export class AppComponent {
   // expect "true"
   public debounceImmediateTest: string = 'debounceImmediateTest';
 
-  private capturePhase: boolean;
+  private capturePhase?: boolean;
 
-  constructor(private readonly ngZone: NgZone) {
-  }
+  constructor(private readonly ngZone: NgZone) {}
 
   onPassiveClick(event: MouseEvent): void {
     try {
       event.preventDefault();
-    } catch {
-    }
+    } catch {}
     this.passiveTest = (!event.defaultPrevented).toString();
   }
 
-  onOnceClick(event: MouseEvent): void {
+  onOnceClick(): void {
     this.onceTest++;
   }
 
@@ -59,62 +57,62 @@ export class AppComponent {
     this.preventDefaultTest = event.defaultPrevented.toString();
   }
 
-  onNgZoneClick(event: MouseEvent): void {
+  onNgZoneClick(): void {
     const result: string = (!NgZone.isInAngularZone()).toString();
-    this.ngZone.run(() => this.ngZoneTest = result);
+    this.ngZone.run(() => (this.ngZoneTest = result));
   }
 
-  onCaptureParentClick(event: MouseEvent): void {
+  onCaptureParentClick(): void {
     this.capturePhase = true;
   }
 
-  onBubbleParentClick(event: MouseEvent): void {
-    this.captureTest = this.capturePhase.toString();
+  onBubbleParentClick(): void {
+    this.captureTest = this.capturePhase != null ? this.capturePhase.toString() : 'false';
   }
 
-  onCaptureChildClick(event: MouseEvent): void {
+  onCaptureChildClick(): void {
     this.capturePhase = this.capturePhase === true;
   }
 
-  onStopCaptureParentClick(event: MouseEvent): void {
+  onStopCaptureParentClick(): void {
     this.stopTest = 0;
   }
 
-  onStopChildClick(event: MouseEvent): void {
+  onStopChildClick(): void {
     if (this.stopTest === 0) {
       this.stopTest = 1;
     }
   }
 
-  onStopTestChildClick(event: MouseEvent): void {
+  onStopTestChildClick(): void {
     this.stopTest = 2;
   }
 
-  onStopBubbleParentClick(event: MouseEvent): void {
+  onStopBubbleParentClick(): void {
     this.stopTest = 3;
   }
 
-  onStopEmptyClick(event: MouseEvent): void {
+  onStopEmptyClick(): void {
     this.stopEmptyTest = 'sibling';
   }
 
-  onStopParentEmptyClick(event: MouseEvent): void {
+  onStopParentEmptyClick(): void {
     this.stopEmptyTest = 'parent';
   }
 
-  onThrottleWaitClick(event: MouseEvent): void {
+  onThrottleWaitClick(): void {
     // console.log(event);
   }
 
-  onDebounceWaitClick(event: MouseEvent): void {
+  onDebounceWaitClick(): void {
     // console.log(event);
   }
 
-  onThrottleImmediateClick(event: MouseEvent): void {
+  onThrottleImmediateClick(): void {
     // console.log(event);
   }
 
-  onDebounceImmediateClick(event: MouseEvent): void {
+  onDebounceImmediateClick(): void {
     // console.log(event);
   }
 }

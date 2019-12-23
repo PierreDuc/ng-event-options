@@ -30,7 +30,6 @@ speed-measure-plugin.json
 !.vscode/launch.json
 !.vscode/extensions.json
 .history/*
-*.iml
 
 # misc
 /.sass-cache
@@ -45,3 +44,4 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+ng-event-options.iml

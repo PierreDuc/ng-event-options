@@ -16,18 +16,21 @@ import { debounceEvent } from '../helper/debounce-event';
 @Injectable()
 // EventManagerPlugin is not yet part of the public API of Angular, once it is I can remove the `addGlobalEventListener`
 export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
-
   private nativeEventObjectSupported?: boolean;
 
-  private readonly nativeOptionsObjects: { [key: number]: AddEventListenerOptions } = {};
+  private readonly nativeOptionsObjects: {
+    [key: number]: AddEventListenerOptions;
+  } = {};
 
-  private readonly nativeOptionsSupported: { [O in NativeEventOption]: boolean } = {
+  private readonly nativeOptionsSupported: {
+    [O in NativeEventOption]: boolean;
+  } = {
     capture: false,
     once: false,
     passive: false
   };
 
-  private readonly keyEvents: (keyof DocumentEventMap)[] = [ 'keydown', 'keypress', 'keyup' ];
+  private readonly keyEvents: (keyof DocumentEventMap)[] = ['keydown', 'keypress', 'keyup'];
 
   private readonly blockSeparator: string = '|';
 
@@ -39,16 +42,19 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
   private readonly operatorSymbols: OperatorSymbol[] = [];
 
-  constructor(private readonly ngZone: NgZone,
-              @Inject(DOCUMENT) private readonly doc: any,
-              @Inject(PLATFORM_ID) private readonly platformId: Object) {
+  constructor(
+    private readonly ngZone: NgZone,
+    @Inject(DOCUMENT) private readonly doc: any,
+    @Inject(PLATFORM_ID) private readonly platformId: string
+  ) {
     this.setSymbols();
     this.checkSupport();
   }
 
   addEventListener(element: HTMLElement, eventName: string, listener: EventListener): () => void {
     const { type, options, operators } = this.getTypeOptions(eventName);
-    const inBrowser: number = options.indexOf(OptionSymbol.InBrowser) > -1 ? EventOption.InBrowser : 0;
+    const inBrowser: number =
+      options.indexOf(OptionSymbol.InBrowser) > -1 ? EventOption.InBrowser : 0;
 
     if (inBrowser && !isPlatformBrowser(this.platformId)) {
       return (): void => void 0;
@@ -59,7 +65,8 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     }
 
     const passive: number = options.indexOf(OptionSymbol.Passive) > -1 ? EventOption.Passive : 0;
-    const preventDefault: number = options.indexOf(OptionSymbol.PreventDefault) > -1 ? EventOption.PreventDefault : 0;
+    const preventDefault: number =
+      options.indexOf(OptionSymbol.PreventDefault) > -1 ? EventOption.PreventDefault : 0;
 
     if (passive && preventDefault) {
       throw new Error(ErrorMsg.PassivePreventDefault);
@@ -70,10 +77,12 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     const noZone: number = options.indexOf(OptionSymbol.NoZone) > -1 ? EventOption.NoZone : 0;
     const capture: number = options.indexOf(OptionSymbol.Capture) > -1 ? EventOption.Capture : 0;
 
-    const operatorSettings: Partial<{ [OS in OperatorSymbol]: string[]}> = this.parseOperators(operators);
+    const operatorSettings: Partial<{ [OS in OperatorSymbol]: string[] }> = this.parseOperators(
+      operators
+    );
 
-    const debounceParams: string[] | undefined = operatorSettings[ OperatorSymbol.Debounce ];
-    const throttleParams: string[] | undefined = operatorSettings[ OperatorSymbol.Throttle ];
+    const debounceParams: string[] | undefined = operatorSettings[OperatorSymbol.Debounce];
+    const throttleParams: string[] | undefined = operatorSettings[OperatorSymbol.Throttle];
 
     const bitVal: number = getBitValue(capture, once, passive);
     const eventOptionsObj: EventOptionsObject = this.getEventOptionsObject(bitVal);
@@ -108,7 +117,7 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
         event.preventDefault();
       }
 
-      if (once && !this.nativeOptionsSupported[ NativeEventOption.Once ]) {
+      if (once && !this.nativeOptionsSupported[NativeEventOption.Once]) {
         element.removeEventListener(type, intermediateListener, eventOptionsObj);
       }
 
@@ -129,12 +138,17 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       element.addEventListener(type, intermediateListener, eventOptionsObj);
     }
 
-    return () => this.ngZone.runOutsideAngular((): void =>
-      element.removeEventListener(type, intermediateListener, eventOptionsObj)
-    );
+    return () =>
+      this.ngZone.runOutsideAngular((): void =>
+        element.removeEventListener(type, intermediateListener, eventOptionsObj)
+      );
   }
 
-  addGlobalEventListener(element: GlobalEventTarget, eventName: string, listener: EventListener): () => void {
+  addGlobalEventListener(
+    element: GlobalEventTarget,
+    eventName: string,
+    listener: EventListener
+  ): () => void {
     if (!isPlatformBrowser(this.platformId)) {
       return (): void => void 0;
     }
@@ -148,8 +162,10 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
     } else if (element === GlobalEventTarget.Body && this.doc) {
       target = this.doc.body;
     } else {
-      const replace: string[] = [ element, eventName ];
-      throw new Error(ErrorMsg.UnsupportedEventTarget.replace(/\|~/g, () => replace.shift() as string));
+      const replace: string[] = [element, eventName];
+      throw new Error(
+        ErrorMsg.UnsupportedEventTarget.replace(/\|~/g, () => replace.shift() as string)
+      );
     }
 
     return this.addEventListener(target as HTMLElement, eventName, listener);
@@ -168,40 +184,48 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
     const chosenOptions: OptionSymbol[] = options.split('') as OptionSymbol[];
 
-    return chosenOptions.every((option: OptionSymbol, index: number): boolean =>
-      this.optionSymbols.indexOf(option) !== -1 && index === chosenOptions.lastIndexOf(option)
+    return chosenOptions.every(
+      (option: OptionSymbol, index: number): boolean =>
+        this.optionSymbols.indexOf(option) !== -1 && index === chosenOptions.lastIndexOf(option)
     );
   }
 
   private checkSupport(): void {
     const supportObj: object = new Object(null);
 
-    Object.keys(NativeEventOption).map(optionKey => NativeEventOption[ optionKey as any ]).forEach(nativeOption =>
-      Object.defineProperty(supportObj, nativeOption, {
-        get: () => {
-          this.nativeOptionsSupported[ nativeOption as NativeEventOption ] = true;
-        }
-      })
-    );
+    Object.keys(NativeEventOption)
+      .map(optionKey => NativeEventOption[optionKey as any])
+      .forEach(nativeOption =>
+        Object.defineProperty(supportObj, nativeOption, {
+          get: () => {
+            this.nativeOptionsSupported[nativeOption as NativeEventOption] = true;
+          }
+        })
+      );
 
     try {
-      window.addEventListener('test', new Function as EventListener, supportObj);
-    } catch {
-    }
+      window.addEventListener('test', new Function() as EventListener, supportObj);
+    } catch {}
 
-    this.nativeEventObjectSupported = this.nativeOptionsSupported[ NativeEventOption.Capture ];
+    this.nativeEventObjectSupported = this.nativeOptionsSupported[NativeEventOption.Capture];
   }
 
-  private parseOperators(operatorsStr: string): Partial<{ [OS in OperatorSymbol]: string[]}> {
-    const operators: Partial<{ [OS in OperatorSymbol]: string[]}> = {};
+  private parseOperators(operatorsStr: string): Partial<{ [OS in OperatorSymbol]: string[] }> {
+    const operators: Partial<{ [OS in OperatorSymbol]: string[] }> = {};
 
     if (operatorsStr) {
-      operatorsStr.split(/],?/).forEach(operatorStr => {
-        const parts: string[] = operatorStr.split('[');
+      operatorsStr.split(/},?/).forEach(operatorStr => {
+        const parts: string[] = operatorStr.split('{');
+
         if (parts.length === 2) {
-          const operator: OperatorSymbol = parts[ 0 ] as OperatorSymbol;
+          const operator: OperatorSymbol = parts[0] as OperatorSymbol;
+
           if (operator && this.operatorSymbols.indexOf(operator) > -1) {
-            operators[ operator ] = parts[ 1 ].split(',').filter(p => p);
+            operators[operator] = parts[1].split(this.operatorSeparator).filter(p => p);
+          } else {
+            throw new Error(
+              ErrorMsg.UnsupportedOperator.replace(/\|~/g, operator)
+            );
           }
         }
       });
@@ -215,10 +239,13 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       return (options & EventOption.Capture) === EventOption.Capture;
     }
 
-    const eventOptions: number = (options & EventOption.Capture) + (options & EventOption.Passive) + (options & EventOption.Once);
+    const eventOptions: number =
+      (options & EventOption.Capture) +
+      (options & EventOption.Passive) +
+      (options & EventOption.Once);
 
     if (eventOptions in this.nativeOptionsObjects) {
-      return this.nativeOptionsObjects[ eventOptions ];
+      return this.nativeOptionsObjects[eventOptions];
     }
 
     const optionsObj: EventOptionsObject = {
@@ -227,19 +254,19 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
       once: !!(eventOptions & EventOption.Once)
     };
 
-    this.nativeOptionsObjects[ eventOptions ] = optionsObj;
+    this.nativeOptionsObjects[eventOptions] = optionsObj;
 
     return optionsObj;
   }
 
-  private getTypeOptions(eventName: string): { type: string, options: string, operators: string } {
-    let [ type, options, operators ]: string[] = eventName.split(this.optionSeparator);
+  private getTypeOptions(eventName: string): { type: string; options: string; operators: string } {
+    let [type, options, operators]: string[] = eventName.split(this.optionSeparator);
 
     if (!options || !type) {
       return { type: '', options: '', operators: '' };
     }
 
-    [ options, operators ] = options.split(this.blockSeparator);
+    [options, operators] = options.split(this.blockSeparator);
 
     if (!operators) {
       operators = '';
@@ -254,13 +281,13 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
 
   private setSymbols(): void {
     this.optionSymbols.length = 0;
-    Object.keys(OptionSymbol).forEach(
-      optionKey => this.optionSymbols.push(OptionSymbol[ optionKey as any ] as OptionSymbol)
+    Object.keys(OptionSymbol).forEach(optionKey =>
+      this.optionSymbols.push(OptionSymbol[optionKey as any] as OptionSymbol)
     );
 
     this.operatorSymbols.length = 0;
-    Object.keys(OperatorSymbol).forEach(
-      operatorSymbol => this.operatorSymbols.push(OperatorSymbol[ operatorSymbol as any ] as OperatorSymbol)
+    Object.keys(OperatorSymbol).forEach(operatorSymbol =>
+      this.operatorSymbols.push(OperatorSymbol[operatorSymbol as any] as OperatorSymbol)
     );
   }
 }

@@ -6,7 +6,7 @@
   "name": "ng-event-options",
   "description": "Enable event options (capture, passive, ...) inside angular templates, based on browser support",
   "license": "MIT",
-  "version": "8.2.16",
+  "version": "8.2.17",
   "repository": {
     "type": "git",
     "url": "git@github.com:PierreDuc/ng-event-options.git"
@@ -17,8 +17,8 @@
   "keywords": [
     "angular",
     "angular2",
-    "angular4",
     "angular5",
+    "angular8",
     "event",
     "eventoptions",
     "passive",
