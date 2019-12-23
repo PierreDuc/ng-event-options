@@ -21,7 +21,7 @@
           "options": {
             "main": "projects/ng-event-options/src/test.ts",
             "tsConfig": "projects/ng-event-options/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-event-options/karma.conf.js",
+            "karmaConfig": "projects/ng-event-options/karma.conf.js"
           }
         },
         "lint": {
