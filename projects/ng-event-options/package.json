@@ -1,6 +1,35 @@
 {
+  "author": {
+    "name": "Poul Kruijt",
+    "email": "poulkruijt@gmail.com"
+  },
   "name": "ng-event-options",
-  "version": "8.2.15",
+  "description": "Enable event options (capture, passive, ...) inside angular templates, based on browser support",
+  "license": "MIT",
+  "version": "8.2.16",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:PierreDuc/ng-event-options.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PierreDuc/ng-event-options/issues"
+  },
+  "keywords": [
+    "angular",
+    "angular2",
+    "angular4",
+    "angular5",
+    "event",
+    "eventoptions",
+    "passive",
+    "capture",
+    "bubble",
+    "propagation",
+    "universal",
+    "preventDefault",
+    "debounce",
+    "throttle"
+  ],
   "peerDependencies": {
     "@angular/common": "^8.0.3",
     "@angular/core": "^8.0.3"
