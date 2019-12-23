@@ -1,0 +1,8 @@
+{
+  "name": "ng-event-options",
+  "version": "8.2.15",
+  "peerDependencies": {
+    "@angular/common": "^8.0.3",
+    "@angular/core": "^8.0.3"
+  }
+}
