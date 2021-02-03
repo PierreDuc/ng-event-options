@@ -14,6 +14,11 @@
           "options": {
             "tsConfig": "projects/ng-event-options/tsconfig.lib.json",
             "project": "projects/ng-event-options/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ng-event-options/tsconfig.lib.prod.json"
+            }
           }
         },
         "test": {
@@ -25,14 +30,11 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "projects/ng-event-options/tsconfig.lib.json",
-              "projects/ng-event-options/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
+            "lintFilePatterns": [
+              "projects/ng-event-options/**/*.ts",
+              "projects/ng-event-options/**/*.html"
             ]
           }
         }
@@ -57,7 +59,7 @@
             "main": "projects/e2e-ng-event-options/src/main.ts",
             "polyfills": "projects/e2e-ng-event-options/src/polyfills.ts",
             "tsConfig": "projects/e2e-ng-event-options/tsconfig.app.json",
-            "aot": false,
+            "aot": true,
             "assets": [
               "projects/e2e-ng-event-options/src/favicon.ico",
               "projects/e2e-ng-event-options/src/assets"
@@ -80,7 +82,6 @@
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -116,33 +117,12 @@
             "browserTarget": "e2e-ng-event-options:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/e2e-ng-event-options/src/test.ts",
-            "polyfills": "projects/e2e-ng-event-options/src/polyfills.ts",
-            "tsConfig": "projects/e2e-ng-event-options/tsconfig.spec.json",
-            "karmaConfig": "projects/e2e-ng-event-options/karma.conf.js",
-            "assets": [
-              "projects/e2e-ng-event-options/src/favicon.ico",
-              "projects/e2e-ng-event-options/src/assets"
-            ],
-            "styles": [
-              "projects/e2e-ng-event-options/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "projects/e2e-ng-event-options/tsconfig.app.json",
-              "projects/e2e-ng-event-options/tsconfig.spec.json",
-              "projects/e2e-ng-event-options/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
+            "lintFilePatterns": [
+              "projects/e2e-ng-event-options/**/*.ts",
+              "projects/e2e-ng-event-options/**/*.html"
             ]
           }
         },
@@ -159,6 +139,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "ng-event-options"
 }

@@ -13,9 +13,9 @@ cache:
   directories:
     - "node_modules"
 script:
-  - "npm run test -- --watch=false"
-  - "npm run lint"
-  - "npm run e2e"
+  - "npx ng test --code-coverage --watch=false"
+  - "npx ng lint"
+  - "npx ng e2e"
 
 before_script:
   - export DISPLAY=:99.0

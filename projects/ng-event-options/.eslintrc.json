@@ -1,0 +1,75 @@
+{
+  "extends": "../../.eslintrc.json",
+  "ignorePatterns": [
+    "!**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "projects/ng-event-options/tsconfig.lib.json",
+          "projects/ng-event-options/tsconfig.spec.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "rules": {
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "lib",
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "lib",
+            "style": "camelCase"
+          }
+        ],
+        "@typescript-eslint/dot-notation": "off",
+        "@typescript-eslint/explicit-member-accessibility": [
+          "off",
+          {
+            "accessibility": "explicit"
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "enumMember",
+            "format": [ "PascalCase" ]
+          }
+        ],
+        "@typescript-eslint/no-inferrable-types": [
+          "off",
+          {
+            "ignoreParameters": true
+          }
+        ],
+        "@typescript-eslint/no-shadow": [
+          "error"
+        ],
+        "@typescript-eslint/no-use-before-define": "error",
+        "arrow-parens": [
+          "off",
+          "always"
+        ],
+        "import/order": "off",
+        "no-bitwise": "off",
+        "no-shadow": "off"
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "rules": {}
+    }
+  ]
+}

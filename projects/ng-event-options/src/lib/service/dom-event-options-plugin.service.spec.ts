@@ -351,6 +351,9 @@ describe('Dom event options plugin', () => {
         OptionSymbol.InBrowser,
         listener.listener
       );
+
+      callback1();
+      callback2();
       el.click();
 
       expect(typeof callback1).toEqual('function');

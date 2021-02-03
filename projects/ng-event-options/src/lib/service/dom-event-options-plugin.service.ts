@@ -191,10 +191,10 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   }
 
   private checkSupport(): void {
-    const supportObj: object = new Object(null);
+    const supportObj: AddEventListenerOptions = new Object(null);
 
     Object.keys(NativeEventOption)
-      .map(optionKey => NativeEventOption[optionKey as any])
+      .map((optionKey) => NativeEventOption[optionKey as keyof typeof NativeEventOption])
       .forEach(nativeOption =>
         Object.defineProperty(supportObj, nativeOption, {
           get: () => {
@@ -282,12 +282,12 @@ export class DomEventOptionsPlugin /*extends EventManagerPlugin*/ {
   private setSymbols(): void {
     this.optionSymbols.length = 0;
     Object.keys(OptionSymbol).forEach(optionKey =>
-      this.optionSymbols.push(OptionSymbol[optionKey as any] as OptionSymbol)
+      this.optionSymbols.push(OptionSymbol[optionKey as keyof typeof OptionSymbol])
     );
 
     this.operatorSymbols.length = 0;
     Object.keys(OperatorSymbol).forEach(operatorSymbol =>
-      this.operatorSymbols.push(OperatorSymbol[operatorSymbol as any] as OperatorSymbol)
+      this.operatorSymbols.push(OperatorSymbol[operatorSymbol as keyof typeof OperatorSymbol])
     );
   }
 }

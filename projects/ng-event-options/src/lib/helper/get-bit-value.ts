@@ -1,4 +1,4 @@
-export function getBitValue(...values: number[]): number {
+export const getBitValue = (...values: number[]): number => {
   const len: number = values.length;
   let val: number = 0;
 
@@ -7,4 +7,4 @@ export function getBitValue(...values: number[]): number {
   }
 
   return val;
-}
+};
