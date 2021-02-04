@@ -2,9 +2,7 @@ dist: trusty
 sudo: true
 
 addons:
-  apt:
-    packages:
-      - google-chrome-stable
+  chrome: stable
 
 language: node_js
 node_js:
