@@ -43,7 +43,9 @@
           "error",
           {
             "selector": "enumMember",
-            "format": [ "PascalCase" ]
+            "format": [
+              "PascalCase"
+            ]
           }
         ],
         "@typescript-eslint/no-inferrable-types": [
