@@ -11,10 +11,10 @@ cache:
   directories:
     - "node_modules"
 script:
-  - "npx ng lint"
-  - "npx ng test --code-coverage --watch=false"
+  - "npx ng lint ng-event-options"
+  - "npx ng test ng-event-options --code-coverage --watch=false"
   - "npx ng e2e"
-  - "npx ng build -c=production"
+  - "npx ng build ng-event-options -c=production"
 
 before_script:
   - export DISPLAY=:99.0
