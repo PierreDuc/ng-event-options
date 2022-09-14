@@ -1,5 +1,5 @@
-dist: trusty
-sudo: true
+dist: focal
+os: linux
 
 addons:
   chrome: stable
