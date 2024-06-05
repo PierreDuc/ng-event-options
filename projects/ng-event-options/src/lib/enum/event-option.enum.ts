@@ -5,5 +5,5 @@ export enum EventOption {
   NoZone = 8,
   Stop = 16,
   PreventDefault = 32,
-  InBrowser = 64
+  InBrowser = 64,
 }

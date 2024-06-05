@@ -7,8 +7,8 @@ import { DomEventOptionsPlugin } from './service/dom-event-options-plugin.servic
     {
       provide: EVENT_MANAGER_PLUGINS,
       useClass: DomEventOptionsPlugin,
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class NgEventOptionsModule {}

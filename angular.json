@@ -52,12 +52,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/e2e-ng-event-options",
+            "outputPath": {
+              "base": "dist/e2e-ng-event-options"
+            },
             "index": "projects/e2e-ng-event-options/src/index.html",
-            "main": "projects/e2e-ng-event-options/src/main.ts",
-            "polyfills": "projects/e2e-ng-event-options/src/polyfills.ts",
+            "polyfills": [
+              "projects/e2e-ng-event-options/src/polyfills.ts"
+            ],
             "tsConfig": "projects/e2e-ng-event-options/tsconfig.app.json",
             "assets": [
               "projects/e2e-ng-event-options/src/favicon.ico",
@@ -67,12 +70,11 @@
               "projects/e2e-ng-event-options/src/styles.scss"
             ],
             "scripts": [],
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "namedChunks": true,
+            "browser": "projects/e2e-ng-event-options/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -87,8 +89,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -108,18 +108,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "e2e-ng-event-options:build"
+            "buildTarget": "e2e-ng-event-options:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "e2e-ng-event-options:build:production"
+              "buildTarget": "e2e-ng-event-options:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "e2e-ng-event-options:build"
+            "buildTarget": "e2e-ng-event-options:build"
           }
         },
         "lint": {
@@ -144,6 +144,14 @@
           }
         }
       }
+    }
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
     }
   }
 }

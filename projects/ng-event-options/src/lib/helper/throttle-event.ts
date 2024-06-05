@@ -1,7 +1,7 @@
 export const throttleEvent = (
   callback: EventListener,
   time: number = 50,
-  immediate: 0 | 1 = 0
+  immediate: 0 | 1 = 0,
 ): EventListener => {
   let timeout: number;
 
@@ -11,13 +11,10 @@ export const throttleEvent = (
         callback(event);
       }
 
-      timeout = window.setTimeout(
-        () => {
-          timeout = 0;
-          return !immediate ? callback(event) : void 0;
-        },
-        time
-      );
+      timeout = window.setTimeout(() => {
+        timeout = 0;
+        return !immediate ? callback(event) : void 0;
+      }, time);
     }
   };
 };

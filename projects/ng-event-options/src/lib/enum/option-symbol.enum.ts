@@ -6,5 +6,5 @@ export enum OptionSymbol {
   Once = 'o',
   PreventDefault = 'd',
   InBrowser = 'b',
-  ForceSymbol = '*'
+  ForceSymbol = '*',
 }

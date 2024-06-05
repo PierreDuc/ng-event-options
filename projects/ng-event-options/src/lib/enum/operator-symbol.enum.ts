@@ -1,4 +1,4 @@
 export enum OperatorSymbol {
   Debounce = 'db',
-  Throttle = 'th'
+  Throttle = 'th',
 }

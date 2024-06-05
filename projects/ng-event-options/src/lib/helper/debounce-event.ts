@@ -1,7 +1,7 @@
 export const debounceEvent = (
   callback: EventListener,
   time: number = 50,
-  immediate: 0 | 1 = 0
+  immediate: 0 | 1 = 0,
 ): EventListener => {
   let timeout: number;
   let wait: boolean;
